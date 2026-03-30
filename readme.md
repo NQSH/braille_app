@@ -1,6 +1,6 @@
 # 🧠 Braille Keyboard - Python (Windows)
 
-Application Python permettant de saisir du braille via le clavier numérique, de le convertir en texte et de le lire à voix haute grâce à la synthèse vocale Windows (SAPI).
+Application Python modulaire permettant de saisir du braille via un clavier standard, de convertir les points en texte, et de lire le résultat à voix haute grâce à la synthèse vocale Windows (SAPI).
 
 ---
 
@@ -8,65 +8,55 @@ Application Python permettant de saisir du braille via le clavier numérique, de
 
 - ✋ Saisie braille **séquentielle** (une touche à la fois)
 - 🔤 Conversion en alphabet (a → z)
+- 🔢 Entrée des chiffres avec le signe nombre suivi des lettres a-j
 - 🪟 Interface graphique simple avec Tkinter
 - 🔊 Lecture vocale du texte (Windows SAPI via pywin32)
 - ⏎ Lecture vocale avec la touche `Entrée`
-- 🧹 Validation du caractère avec `0`
-- ➕ Espace automatique si `0` est pressé à vide
-- ❌ Suppression avec la touche `.` (pavé numérique)
-  - clic court → supprimer 1 caractère
+- 🧹 Validation du caractère avec `0` ou `Espace`
+- ➕ Espace automatique si la touche de validation est pressée à vide
+- ❌ Suppression avec `.` / `BackSpace` ou `l` selon le mode
+  - appui court → supprimer 1 caractère
   - appui long (> 1 seconde) → supprimer tout le texte
-- ⚡ Détection clavier stable et robuste (Tkinter events + timers)
+- 🔁 Deux modes de saisie
+  - `numpad` : clavier numérique classique
+  - `perkins` : saisie type Perkins avec `s d f h j k`
 
 ---
 
-# 🎮 Comment ça marche ?
+# 🎮 Modes de saisie
 
-## 🧩 Principe
+## Mode `numpad`
 
-Tu construis une lettre en appuyant **une touche à la fois**, puis tu valides avec `0`.
+- 7 → point 1
+- 4 → point 2
+- 1 → point 3
+- 8 → point 4
+- 5 → point 5
+- 2 → point 6
+- 0 → valider lettre ou espace
+- . / BackSpace / Delete → supprimer
 
----
+## Mode `perkins`
 
-## 📌 Mapping des points braille
+- s → point 1
+- d → point 2
+- f → point 3
+- h → point 4
+- j → point 5
+- k → point 6
+- `Espace` → valider lettre ou espace
+- l → supprimer
 
-7 → point 1  
-4 → point 2  
-1 → point 3  
-8 → point 4  
-5 → point 5  
-2 → point 6  
+## Switcher de mode
 
----
-
-## ✍️ Exemple d’utilisation
-
-### Saisie de "e"
-
-Appui : 7 + 5  
-Validation : 0  
-Résultat : e  
-
----
-
-### Saisie de "n"
-
-Appui : 7 + 1 + 8  
-Validation : 0  
-Résultat : n  
+- `F2` : changer de mode entre `numpad` et `perkins`
 
 ---
 
-# 🎯 Contrôles
+# 🎯 Entrée des chiffres et symboles
 
-| Touche | Action |
-|--------|--------|
-| 7 4 1 8 5 2 | Ajout de points braille |
-| 0 | Valider la lettre / espace si vide |
-| . (pavé numérique) | Supprimer |
-| Appui court . | Supprime 1 caractère |
-| Appui long . (>1s) | Supprime tout |
-| Entrée | Lire le texte à voix haute |
+- Saisir le signe nombre (`⠼` / 3-4-5-6) puis la lettre correspondante pour obtenir un chiffre
+- Symboles disponibles : `, ; : . ? ! ' - / +`
 
 ---
 
@@ -76,17 +66,9 @@ Résultat : n
 
 Python 3.10+
 
----
-
 ## 2. Installer les dépendances
 
-pip install pywin32
-
----
-
-# ⚠️ Important
-
-Windows uniquement (SAPI + Tkinter)
+pip install -r requirements.txt
 
 ---
 
@@ -96,19 +78,20 @@ python main.py
 
 ---
 
-# 🧠 Architecture
+# 🧠 Architecture du projet
 
-- Tkinter (UI)
-- keyboard events
-- after() timers
-- SAPI Windows
+- `main.py` : point d'entrée principal
+- `ui/gui.py` : interface Tkinter et gestion des événements
+- `braille/mapping.py` : conversion des points braille en caractères, chiffres et symboles
+- `braille/mode.py` : définition des modes d'entrée et des touches associées
+- `speech/sapi.py` : synthèse vocale Windows avec pywin32
 
 ---
 
 # 🛠️ Améliorations possibles
 
-- feedback sonore
-- mode apprentissage
-- export texte
-- version exe
+- feedback sonore additionnel
+- mode apprentissage interactif
+- export du texte saisi
+- version exécutable (.exe)
 
