@@ -1,51 +1,72 @@
 # 🧠 Braille Keyboard - Python (Windows)
 
-Application Python permettant de saisir du braille via le clavier, de le convertir en texte et de le lire à voix haute grâce à la synthèse vocale Windows.
+Application Python permettant de saisir du braille via le clavier numérique, de le convertir en texte et de le lire à voix haute grâce à la synthèse vocale Windows (SAPI).
 
 ---
 
 # 🚀 Fonctionnalités
 
-- ✋ Saisie braille via touches clavier :
-  - `7, 4, 1, 8, 5, 2`
-- 🔤 Conversion automatique en alphabet (a → z)
+- ✋ Saisie braille **séquentielle** (une touche à la fois)
+- 🔤 Conversion en alphabet (a → z)
 - 🪟 Interface graphique simple avec Tkinter
 - 🔊 Lecture vocale du texte (Windows SAPI via pywin32)
-- ⏎ Lecture du texte avec la touche `Entrée`
-- 🧹 Effacement du texte avec la touche `0`
-- ⚡ Détection clavier fiable (mode polling, multi-touches)
+- ⏎ Lecture vocale avec la touche `Entrée`
+- 🧹 Validation du caractère avec `0`
+- ➕ Espace automatique si `0` est pressé à vide
+- ❌ Suppression avec la touche `.` (pavé numérique)
+  - clic court → supprimer 1 caractère
+  - appui long (> 1 seconde) → supprimer tout le texte
+- ⚡ Détection clavier stable et robuste (Tkinter events + timers)
 
 ---
 
 # 🎮 Comment ça marche ?
 
-Le système utilise un clavier braille simplifié :
+## 🧩 Principe
 
-## 📌 Correspondance des points
-
-
-7 → point 1
-4 → point 2
-1 → point 3
-8 → point 4
-5 → point 5
-2 → point 6
-
+Tu construis une lettre en appuyant **une touche à la fois**, puis tu valides avec `0`.
 
 ---
 
-## ✍️ Exemple
+## 📌 Mapping des points braille
 
-### Saisie :
+7 → point 1  
+4 → point 2  
+1 → point 3  
+8 → point 4  
+5 → point 5  
+2 → point 6  
 
-7 + 5 → e
-7 + 1 + 8 → n
+---
 
+## ✍️ Exemple d’utilisation
 
-### Résultat :
+### Saisie de "e"
 
-en
+Appui : 7 + 5  
+Validation : 0  
+Résultat : e  
 
+---
+
+### Saisie de "n"
+
+Appui : 7 + 1 + 8  
+Validation : 0  
+Résultat : n  
+
+---
+
+# 🎯 Contrôles
+
+| Touche | Action |
+|--------|--------|
+| 7 4 1 8 5 2 | Ajout de points braille |
+| 0 | Valider la lettre / espace si vide |
+| . (pavé numérique) | Supprimer |
+| Appui court . | Supprime 1 caractère |
+| Appui long . (>1s) | Supprime tout |
+| Entrée | Lire le texte à voix haute |
 
 ---
 
@@ -53,14 +74,41 @@ en
 
 ## 1. Installer Python
 
-Version recommandée :
-- Python 3.10 ou supérieur
+Python 3.10+
 
 ---
 
 ## 2. Installer les dépendances
 
-Ouvre un terminal et exécute :
+pip install pywin32
 
-```bash
-pip install pywin32 keyboard
+---
+
+# ⚠️ Important
+
+Windows uniquement (SAPI + Tkinter)
+
+---
+
+# ▶️ Lancer
+
+python main.py
+
+---
+
+# 🧠 Architecture
+
+- Tkinter (UI)
+- keyboard events
+- after() timers
+- SAPI Windows
+
+---
+
+# 🛠️ Améliorations possibles
+
+- feedback sonore
+- mode apprentissage
+- export texte
+- version exe
+
