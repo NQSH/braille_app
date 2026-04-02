@@ -1,9 +1,18 @@
 import tkinter as tk
 from typing import Optional
 
-from braille.mapping import BrailleTranslator
+from braille.mapping import BrailleTranslator, LETTER_MAP, DIGIT_MAP, PUNCTUATION_MAP
 from braille.mode import AVAILABLE_MODES
 from speech.sapi import speak
+
+
+SPECIAL_MAP = {
+    frozenset({1, 2, 3, 4, 5, 6}): 'ç',
+    frozenset({1, 2, 3, 4, 5}): 'è',
+    frozenset({1, 2, 3, 4}): 'à',
+    frozenset({1, 2, 3}): 'é',
+    frozenset({1, 2}): 'ù',
+}
 
 
 def create_rounded_label(parent, bg, fg, radius, width=100, height=50, text='', font=('Arial', 12), pixels_per_char=10):
@@ -25,6 +34,25 @@ def create_rounded_label(parent, bg, fg, radius, width=100, height=50, text='', 
     return canvas, text_id
 
 
+def create_braille_canvas(parent, dots: frozenset[int], size=20):
+    canvas = tk.Canvas(parent, width=2*size, height=3*size, bg='white', highlightthickness=0)
+    positions = {
+        1: (0, 0),  # left top
+        2: (0, 1),  # left middle
+        3: (0, 2),  # left bottom
+        4: (1, 0),  # right top
+        5: (1, 1),  # right middle
+        6: (1, 2),  # right bottom
+    }
+    for i in range(1, 7):
+        col, row = positions[i]
+        x = col * size + size // 2
+        y = row * size + size // 2
+        color = 'black' if i in dots else 'white'
+        canvas.create_oval(x - size//4, y - size//4, x + size//4, y + size//4, fill=color, outline='black')
+    return canvas
+
+
 class BrailleApp:
     def __init__(self) -> None:
         self.translator = BrailleTranslator()
@@ -40,13 +68,39 @@ class BrailleApp:
         self.root.configure(bg='#2C2C2C')  # dark anthracite gray
         self.root.attributes('-fullscreen', True)  # Full screen
 
-        # Container frame that fills the screen
+        # Container frame that fills the screen with grid layout
         self.container = tk.Frame(self.root, bg='#2C2C2C')
         self.container.pack(fill='both', expand=True)
+        self.container.grid_rowconfigure(0, weight=1)
+        self.container.grid_columnconfigure(0, weight=1)
+        self.container.grid_columnconfigure(1, weight=0)  # center narrower
+        self.container.grid_columnconfigure(2, weight=1)
 
-        # Main frame centered in the container
-        self.main_frame = tk.Frame(self.container, bg='#2C2C2C')
-        self.main_frame.place(relx=0.5, rely=0.5, anchor='center')
+        # Left panel
+        self.left_frame = tk.Frame(self.container, bg='#2C2C2C')
+        self.left_frame.grid(row=0, column=0, sticky='nsew')
+        self.left_frame.grid_rowconfigure(0, weight=1)
+        self.left_frame.grid_rowconfigure(1, weight=1)
+        self.left_frame.grid_columnconfigure(0, weight=1)
+
+        # Center panel
+        self.center_frame = tk.Frame(self.container, bg='#2C2C2C')
+        self.center_frame.grid(row=0, column=1, sticky='nsew')
+
+        # Right panel
+        self.right_frame = tk.Frame(self.container, bg='#2C2C2C')
+        self.right_frame.grid(row=0, column=2, sticky='nsew')
+        self.right_frame.grid_rowconfigure(0, weight=1)
+        self.right_frame.grid_rowconfigure(1, weight=1)
+        self.right_frame.grid_columnconfigure(0, weight=1)
+
+        # Main frame in center
+        self.main_frame = tk.Frame(self.center_frame, bg='#2C2C2C')
+        self.main_frame.pack(fill='both', expand=True)
+
+        # Create side panels
+        self.create_left_panels()
+        self.create_right_panels()
 
         # Mode de saisie label
         tk.Label(self.main_frame, text='Mode de saisie', font=('Arial', 14), fg='white', bg='#2C2C2C').pack(pady=(0, 5))
@@ -279,3 +333,49 @@ class BrailleApp:
 
     def on_escape(self, event: tk.Event) -> None:
         self.root.destroy()
+
+    def create_braille_grid(self, parent, mapping: dict, breaks: list = None) -> None:
+        if breaks is None:
+            breaks = []
+        current_row_frame = None
+        col = 0
+        max_cols = 10  # Adjust as needed
+        for dots, char in mapping.items():
+            if char in breaks or col == 0:
+                current_row_frame = tk.Frame(parent, bg='#2C2C2C')
+                current_row_frame.pack(pady=2)
+                col = 0
+            pair_frame = tk.Frame(current_row_frame, bg='#2C2C2C')
+            pair_frame.pack(side='left', padx=5)
+            braille_canvas = create_braille_canvas(pair_frame, dots, size=15)
+            braille_canvas.pack()
+            tk.Label(pair_frame, text=char.upper() if char.isalpha() else char, font=('Arial', 10, 'bold'), fg='white', bg='#2C2C2C').pack()
+            col += 1
+            if col >= max_cols:
+                col = 0
+
+    def create_left_panels(self) -> None:
+        # Alphabet top left
+        alphabet_frame = tk.Frame(self.left_frame, bg='#2C2C2C')
+        alphabet_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
+        tk.Label(alphabet_frame, text='Alphabet', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
+        self.create_braille_grid(alphabet_frame, LETTER_MAP, breaks=['k', 'u'])
+
+        # Numbers bottom left
+        numbers_frame = tk.Frame(self.left_frame, bg='#2C2C2C')
+        numbers_frame.grid(row=1, column=0, sticky='nsew', padx=10, pady=10)
+        tk.Label(numbers_frame, text='Chiffres', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
+        self.create_braille_grid(numbers_frame, DIGIT_MAP)
+
+    def create_right_panels(self) -> None:
+        # Special characters top right
+        special_frame = tk.Frame(self.right_frame, bg='#2C2C2C')
+        special_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
+        tk.Label(special_frame, text='Caractères spéciaux', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
+        self.create_braille_grid(special_frame, SPECIAL_MAP)
+
+        # Punctuation bottom right
+        punctuation_frame = tk.Frame(self.right_frame, bg='#2C2C2C')
+        punctuation_frame.grid(row=1, column=0, sticky='nsew', padx=10, pady=10)
+        tk.Label(punctuation_frame, text='Ponctuation', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
+        self.create_braille_grid(punctuation_frame, PUNCTUATION_MAP)
