@@ -27,9 +27,10 @@ class BrailleApp:
         self.container = tk.Frame(self.root, bg='#2C2C2C')
         self.container.pack(fill='both', expand=True)
         self.container.grid_rowconfigure(0, weight=1)
-        self.container.grid_columnconfigure(0, weight=1)
-        self.container.grid_columnconfigure(1, weight=0)  # center narrower
-        self.container.grid_columnconfigure(2, weight=1)
+        # Left, center, right proportional widths 30%/40%/30%
+        self.container.grid_columnconfigure(0, weight=3)
+        self.container.grid_columnconfigure(1, weight=4)
+        self.container.grid_columnconfigure(2, weight=3)
 
         # Left panel
         self.left_frame = tk.Frame(self.container, bg='#2C2C2C')
@@ -72,8 +73,9 @@ class BrailleApp:
         self.input_canvas.pack(padx=10, pady=10)
 
         # Buffer and number preview
-        buffer_frame = tk.Frame(self.main_frame, bg='#2C2C2C')
-        buffer_frame.pack(fill='x', pady=5)
+        buffer_frame = tk.Frame(self.main_frame, bg='#2C2C2C', width=600, height=50)
+        buffer_frame.pack(pady=5)
+        buffer_frame.pack_propagate(False)
         # Left: Buffer fully left
         buffer_title = tk.Label(buffer_frame, text='Buffer', font=('Arial', 12, 'bold'), fg='white', bg='#2C2C2C')
         buffer_title.pack(side='left')
