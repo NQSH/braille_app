@@ -29,6 +29,7 @@ class BrailleApp:
     def __init__(self) -> None:
         self.translator = BrailleTranslator()
         self.mode = AVAILABLE_MODES[1]
+        self.speech_key = 'g' if self.mode.name == 'perkins' else 'Return'
         self.current_buffer: set[int] = set()
         self.current_text = ''
         self.delete_job: Optional[str] = None
@@ -84,10 +85,20 @@ class BrailleApp:
 
         self.root.bind('<KeyPress>', self.on_key_press)
         self.root.bind('<KeyRelease>', self.on_key_release)
-        self.root.bind('<Return>', self.on_enter)
+        self.root.bind(f'<{self.speech_key}>', self.on_enter)
         self.root.bind('<F2>', self.on_toggle_mode)
 
         self.update_ui()
+
+        # Center the window on screen
+        self.root.update_idletasks()
+        width = self.root.winfo_width()
+        height = self.root.winfo_height()
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = (screen_width - width) // 2
+        y = (screen_height - height) // 2
+        self.root.geometry(f"{width}x{height}+{x}+{y}")
 
     def create_indications(self) -> None:
         # Clear existing
@@ -142,12 +153,14 @@ class BrailleApp:
         if self.mode.name == 'perkins':
             validate_key = 'SPACE'
             delete_key = 'L'
+            speech_key = 'G'
         else:  # numpad
             validate_key = '0'
             delete_key = '.'
+            speech_key = 'ENTRÉE'
         instructions = [
             ['Changer de mode', ('F2',)],
-            ['Lire', ('ENTRÉE',)],
+            ['Lire', (speech_key,)],
             ['Valider', (validate_key,)],
             ['Supprimer', (delete_key,)]
         ]
@@ -258,6 +271,12 @@ class BrailleApp:
         self.mode = AVAILABLE_MODES[(current_index + 1) % len(AVAILABLE_MODES)]
         self.current_buffer.clear()
         self.translator.reset()
+        # Update speech key binding
+        old_key = self.speech_key
+        self.speech_key = 'g' if self.mode.name == 'perkins' else 'Return'
+        if old_key != self.speech_key:
+            self.root.unbind(f'<{old_key}>')
+            self.root.bind(f'<{self.speech_key}>', self.on_enter)
         self.create_indications()
         self.create_instructions()
         self.update_ui()
