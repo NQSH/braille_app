@@ -36,7 +36,7 @@ class BrailleApp:
         self.delete_held = False
 
         self.root = tk.Tk()
-        self.root.title('Braille NumPad - Stable Mode')
+        self.root.title('Brapp')
         self.root.configure(bg='#2C2C2C')  # dark anthracite gray
 
         # Main frame with padding
