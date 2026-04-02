@@ -92,8 +92,8 @@ class BrailleApp:
 
         # Center the window on screen
         self.root.update_idletasks()
-        width = self.root.winfo_width()
-        height = self.root.winfo_height()
+        width = self.root.winfo_reqwidth()
+        height = self.root.winfo_reqheight()
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
         x = (screen_width - width) // 2
@@ -280,3 +280,13 @@ class BrailleApp:
         self.create_indications()
         self.create_instructions()
         self.update_ui()
+
+        # Resize and recenter the window after mode change
+        self.root.update_idletasks()
+        width = self.root.winfo_reqwidth()
+        height = self.root.winfo_reqheight()
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = (screen_width - width) // 2
+        y = (screen_height - height) // 2
+        self.root.geometry(f"{width}x{height}+{x}+{y}")
