@@ -1,7 +1,7 @@
 import tkinter as tk
 from typing import Optional
 
-from braille.mapping import BrailleTranslator, LETTER_MAP, DIGIT_MAP, PUNCTUATION_MAP, SPECIAL_MAP
+from braille.mapping import BrailleTranslator, LETTER_MAP, DIGIT_MAP, PUNCTUATION_MAP, ACCENTED_MAP
 from braille.mode import AVAILABLE_MODES
 from speech.sapi import speak
 from ui.components import create_rounded_label, create_braille_canvas, create_braille_grid
@@ -305,11 +305,11 @@ class BrailleApp:
         create_braille_grid(numbers_frame, DIGIT_MAP)
 
     def create_right_panels(self) -> None:
-        # Special characters top right
+        # Accented characters top right
         special_frame = tk.Frame(self.right_frame, bg='#2C2C2C')
         special_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
-        tk.Label(special_frame, text='Caractères spéciaux', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
-        create_braille_grid(special_frame, SPECIAL_MAP)
+        tk.Label(special_frame, text='Caractères accentués', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
+        create_braille_grid(special_frame, ACCENTED_MAP)
 
         # Punctuation bottom right
         punctuation_frame = tk.Frame(self.right_frame, bg='#2C2C2C')

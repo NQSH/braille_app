@@ -58,15 +58,50 @@ DIGIT_MAP: Dict[DotSet, str] = {
     frozenset({2, 4, 5}): '0',
 }
 
-SPECIAL_MAP: Dict[DotSet, str] = {
+ACCENTED_MAP: Dict[DotSet, str] = {
+    # Voyelles accentuées avec modifications
+    frozenset({1, 5, 6}): 'à',
+    frozenset({1, 2, 3, 6}): 'é',
+    frozenset({1, 5, 4, 6}): 'è',
+    frozenset({1, 2, 4, 6}): 'ê',
+    frozenset({1, 2, 5, 6}): 'ë',
+    frozenset({2, 4, 6}): 'î',
+    frozenset({2, 4, 5, 6}): 'ï',
+    frozenset({1, 3, 5, 6}): 'ô',
+    frozenset({1, 2, 6}): 'ù',
+    frozenset({1, 2, 3, 4, 6}): 'û',
+    frozenset({1, 3, 4, 6}): 'ü',
+    frozenset({2, 3, 4, 6}): 'ö',
+    # Autres caractères spéciaux
     frozenset({1, 2, 3, 4, 5, 6}): 'ç',
-    frozenset({1, 2, 3, 4, 5}): 'è',
-    frozenset({1, 2, 3, 4}): 'à',
-    frozenset({1, 2, 3}): 'é',
-    frozenset({1, 2}): 'ù',
+    frozenset({2, 3, 5, 6}): 'œ',
+    frozenset({1, 2, 6}): 'æ',
 }
 
-EXTENDED_MAP: Dict[DotSet, str] = {**LETTER_MAP, **PUNCTUATION_MAP, **SPECIAL_MAP}
+SPECIAL_SYMBOLS: Dict[DotSet, str] = {
+    frozenset({1, 2, 3, 4, 5, 6}): 'ç',
+    frozenset({1, 6}): '(',
+    frozenset({3, 4, 5, 6}): ')',
+    frozenset({2, 3, 4, 5, 6}): '[',
+    frozenset({1, 2, 5, 6}): ']',
+    frozenset({1, 2, 3, 5, 6}): '{',
+    frozenset({2, 3, 4, 5, 6}): '}',
+    frozenset({4, 5, 6}): '@',
+    frozenset({1, 2, 4, 5, 6}): '$',
+    frozenset({3, 4, 5, 6}): '%',
+    frozenset({1, 6}): '*',
+    frozenset({1, 2, 3, 4, 5, 6}): '&',
+    frozenset({1, 2, 4, 5, 6}): '=',
+    frozenset({1, 2, 3, 4, 5, 6}): '<',
+    frozenset({1, 2, 3, 4, 5, 6}): '>',
+    frozenset({1, 4, 5, 6}): '^',
+    frozenset({1, 2, 3, 5, 6}): '~',
+    frozenset({1, 2, 5}): '|',
+    frozenset({1, 2, 4, 5, 6}): '\\',
+    frozenset({3, 5, 6}): ' ',  # Espace
+}
+
+EXTENDED_MAP: Dict[DotSet, str] = {**LETTER_MAP, **DIGIT_MAP, **PUNCTUATION_MAP, **ACCENTED_MAP}
 
 
 class BrailleTranslator:
