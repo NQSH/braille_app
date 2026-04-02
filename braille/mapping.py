@@ -58,7 +58,15 @@ DIGIT_MAP: Dict[DotSet, str] = {
     frozenset({2, 4, 5}): '0',
 }
 
-EXTENDED_MAP: Dict[DotSet, str] = {**LETTER_MAP, **PUNCTUATION_MAP}
+SPECIAL_MAP: Dict[DotSet, str] = {
+    frozenset({1, 2, 3, 4, 5, 6}): 'ç',
+    frozenset({1, 2, 3, 4, 5}): 'è',
+    frozenset({1, 2, 3, 4}): 'à',
+    frozenset({1, 2, 3}): 'é',
+    frozenset({1, 2}): 'ù',
+}
+
+EXTENDED_MAP: Dict[DotSet, str] = {**LETTER_MAP, **PUNCTUATION_MAP, **SPECIAL_MAP}
 
 
 class BrailleTranslator:

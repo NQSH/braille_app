@@ -1,56 +1,11 @@
 import tkinter as tk
 from typing import Optional
 
-from braille.mapping import BrailleTranslator, LETTER_MAP, DIGIT_MAP, PUNCTUATION_MAP
+from braille.mapping import BrailleTranslator, LETTER_MAP, DIGIT_MAP, PUNCTUATION_MAP, SPECIAL_MAP
 from braille.mode import AVAILABLE_MODES
 from speech.sapi import speak
+from ui.components import create_rounded_label, create_braille_canvas, create_braille_grid
 
-
-SPECIAL_MAP = {
-    frozenset({1, 2, 3, 4, 5, 6}): 'ç',
-    frozenset({1, 2, 3, 4, 5}): 'è',
-    frozenset({1, 2, 3, 4}): 'à',
-    frozenset({1, 2, 3}): 'é',
-    frozenset({1, 2}): 'ù',
-}
-
-
-def create_rounded_label(parent, bg, fg, radius, width=100, height=50, text='', font=('Arial', 12), pixels_per_char=10):
-    if text:
-        # Calculate width based on len(text) * pixels_per_char + padding
-        width = len(text) * pixels_per_char + 20
-        # Height based on font size if not specified
-        if height == 50:  # default
-            height = font[1] + 10 if len(font) > 1 else 30
-    
-    canvas = tk.Canvas(parent, width=width, height=height, bg=parent['bg'], highlightthickness=0)
-    
-    def round_rectangle(x1, y1, x2, y2, radius=radius):
-        points = [x1+radius, y1, x2-radius, y1, x2, y1, x2, y1+radius, x2, y2-radius, x2, y2, x2-radius, y2, x1+radius, y2, x1, y2, x1, y2-radius, x1, y1+radius, x1, y1]
-        return canvas.create_polygon(points, fill=bg, outline='', smooth=True)
-    
-    round_rectangle(2, 2, width-2, height-2, radius)
-    text_id = canvas.create_text(width/2, height/2, text=text, font=font, fill=fg)
-    return canvas, text_id
-
-
-def create_braille_canvas(parent, dots: frozenset[int], size=20):
-    canvas = tk.Canvas(parent, width=2*size, height=3*size, bg='white', highlightthickness=0)
-    positions = {
-        1: (0, 0),  # left top
-        2: (0, 1),  # left middle
-        3: (0, 2),  # left bottom
-        4: (1, 0),  # right top
-        5: (1, 1),  # right middle
-        6: (1, 2),  # right bottom
-    }
-    for i in range(1, 7):
-        col, row = positions[i]
-        x = col * size + size // 2
-        y = row * size + size // 2
-        color = 'black' if i in dots else 'white'
-        canvas.create_oval(x - size//4, y - size//4, x + size//4, y + size//4, fill=color, outline='black')
-    return canvas
 
 
 class BrailleApp:
@@ -334,48 +289,28 @@ class BrailleApp:
     def on_escape(self, event: tk.Event) -> None:
         self.root.destroy()
 
-    def create_braille_grid(self, parent, mapping: dict, breaks: list = None) -> None:
-        if breaks is None:
-            breaks = []
-        current_row_frame = None
-        col = 0
-        max_cols = 10  # Adjust as needed
-        for dots, char in mapping.items():
-            if char in breaks or col == 0:
-                current_row_frame = tk.Frame(parent, bg='#2C2C2C')
-                current_row_frame.pack(pady=2)
-                col = 0
-            pair_frame = tk.Frame(current_row_frame, bg='#2C2C2C')
-            pair_frame.pack(side='left', padx=5)
-            braille_canvas = create_braille_canvas(pair_frame, dots, size=15)
-            braille_canvas.pack()
-            tk.Label(pair_frame, text=char.upper() if char.isalpha() else char, font=('Arial', 10, 'bold'), fg='white', bg='#2C2C2C').pack()
-            col += 1
-            if col >= max_cols:
-                col = 0
-
     def create_left_panels(self) -> None:
         # Alphabet top left
         alphabet_frame = tk.Frame(self.left_frame, bg='#2C2C2C')
         alphabet_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
         tk.Label(alphabet_frame, text='Alphabet', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
-        self.create_braille_grid(alphabet_frame, LETTER_MAP, breaks=['k', 'u'])
+        create_braille_grid(alphabet_frame, LETTER_MAP, breaks=['k', 'u'])
 
         # Numbers bottom left
         numbers_frame = tk.Frame(self.left_frame, bg='#2C2C2C')
         numbers_frame.grid(row=1, column=0, sticky='nsew', padx=10, pady=10)
         tk.Label(numbers_frame, text='Chiffres', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
-        self.create_braille_grid(numbers_frame, DIGIT_MAP)
+        create_braille_grid(numbers_frame, DIGIT_MAP)
 
     def create_right_panels(self) -> None:
         # Special characters top right
         special_frame = tk.Frame(self.right_frame, bg='#2C2C2C')
         special_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
         tk.Label(special_frame, text='Caractères spéciaux', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
-        self.create_braille_grid(special_frame, SPECIAL_MAP)
+        create_braille_grid(special_frame, SPECIAL_MAP)
 
         # Punctuation bottom right
         punctuation_frame = tk.Frame(self.right_frame, bg='#2C2C2C')
         punctuation_frame.grid(row=1, column=0, sticky='nsew', padx=10, pady=10)
         tk.Label(punctuation_frame, text='Ponctuation', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
-        self.create_braille_grid(punctuation_frame, PUNCTUATION_MAP)
+        create_braille_grid(punctuation_frame, PUNCTUATION_MAP)
