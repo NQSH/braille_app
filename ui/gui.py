@@ -9,7 +9,7 @@ from speech.sapi import speak
 class BrailleApp:
     def __init__(self) -> None:
         self.translator = BrailleTranslator()
-        self.mode = AVAILABLE_MODES[0]
+        self.mode = AVAILABLE_MODES[1]
         self.current_buffer: set[int] = set()
         self.current_text = ''
         self.delete_job: Optional[str] = None
