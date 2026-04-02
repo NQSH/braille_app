@@ -6,6 +6,25 @@ from braille.mode import AVAILABLE_MODES
 from speech.sapi import speak
 
 
+def create_rounded_label(parent, bg, fg, radius, width=100, height=50, text='', font=('Arial', 12), pixels_per_char=10):
+    if text:
+        # Calculate width based on len(text) * pixels_per_char + padding
+        width = len(text) * pixels_per_char + 20
+        # Height based on font size if not specified
+        if height == 50:  # default
+            height = font[1] + 10 if len(font) > 1 else 30
+    
+    canvas = tk.Canvas(parent, width=width, height=height, bg=parent['bg'], highlightthickness=0)
+    
+    def round_rectangle(x1, y1, x2, y2, radius=radius):
+        points = [x1+radius, y1, x2-radius, y1, x2, y1, x2, y1+radius, x2, y2-radius, x2, y2, x2-radius, y2, x1+radius, y2, x1, y2, x1, y2-radius, x1, y1+radius, x1, y1]
+        return canvas.create_polygon(points, fill=bg, outline='', smooth=True)
+    
+    round_rectangle(2, 2, width-2, height-2, radius)
+    text_id = canvas.create_text(width/2, height/2, text=text, font=font, fill=fg)
+    return canvas, text_id
+
+
 class BrailleApp:
     def __init__(self) -> None:
         self.translator = BrailleTranslator()
@@ -34,26 +53,22 @@ class BrailleApp:
         self.desc_label.pack(pady=(0, 10))
 
         # Text input frame
-        self.label = tk.Label(self.main_frame, text='', font=('Arial', 24), width=30, height=3, bg='white', fg='black')
-        self.label.pack(padx=10, pady=10)
+        self.input_canvas, self.input_text_id = create_rounded_label(self.main_frame, bg='white', fg='black', radius=8, width=600, height=150, text='', font=('Arial', 24))
+        self.input_canvas.pack(padx=10, pady=10)
 
         # Buffer and number preview
         buffer_frame = tk.Frame(self.main_frame, bg='#2C2C2C')
         buffer_frame.pack(fill='x', pady=5)
-        # Left half: Buffer
-        left_frame = tk.Frame(buffer_frame, bg='#2C2C2C')
-        left_frame.pack(side='left', expand=True, fill='x')
-        buffer_title = tk.Label(left_frame, text='Buffer', font=('Arial', 12, 'bold'), fg='white', bg='#2C2C2C')
+        # Left: Buffer fully left
+        buffer_title = tk.Label(buffer_frame, text='Buffer', font=('Arial', 12, 'bold'), fg='white', bg='#2C2C2C')
         buffer_title.pack(side='left')
-        self.buffer_value = tk.Label(left_frame, text='', font=('Arial', 12), bg='white', fg='#2C2C2C', padx=5, pady=5)
-        self.buffer_value.pack(side='right')
-        # Right half: Mode nombre
-        right_frame = tk.Frame(buffer_frame, bg='#2C2C2C')
-        right_frame.pack(side='right', expand=True, fill='x')
-        number_title = tk.Label(right_frame, text='Mode nombre', font=('Arial', 12, 'bold'), fg='white', bg='#2C2C2C')
-        number_title.pack(side='left')
-        self.number_value = tk.Label(right_frame, text='', font=('Arial', 12), bg='white', fg='#2C2C2C', padx=5, pady=5)
+        self.buffer_canvas, self.buffer_text_id = create_rounded_label(buffer_frame, bg='white', fg='#2C2C2C', radius=4, width=120, height=30, text='', font=('Arial', 12, 'bold'))
+        self.buffer_canvas.pack(side='left', padx=(10, 0))
+        # Right: Mode nombre fully right
+        self.number_value = tk.Label(buffer_frame, text='', font=('Arial', 14, 'bold'), bg='#2C2C2C', fg='white')
         self.number_value.pack(side='right')
+        number_title = tk.Label(buffer_frame, text='Mode nombre', font=('Arial', 12, 'bold'), fg='white', bg='#2C2C2C')
+        number_title.pack(side='right', padx=(0, 10))
 
         # Mode indications
         self.indications_frame = tk.Frame(self.main_frame, bg='#2C2C2C')
@@ -62,7 +77,9 @@ class BrailleApp:
 
         # Instructions at bottom
         self.instructions_frame = tk.Frame(self.main_frame, bg='#2C2C2C')
-        self.instructions_frame.pack(pady=10, anchor='w')  # align left
+        self.instructions_frame.pack(pady=10, fill='x')
+        self.center_instructions = tk.Frame(self.instructions_frame, bg='#2C2C2C')
+        self.center_instructions.pack(fill='x', padx=100)
         self.create_instructions()
 
         self.root.bind('<KeyPress>', self.on_key_press)
@@ -86,8 +103,8 @@ class BrailleApp:
                     pair_frame = tk.Frame(self.indications_frame, bg='#2C2C2C')
                     pair_frame.pack(side='left', padx=2)
                     # Key
-                    lbl = tk.Label(pair_frame, text=key, font=('Arial', 16, 'bold'), bg='white', fg='#2C2C2C', padx=5, pady=5)
-                    lbl.pack()
+                    lbl_canvas, _ = create_rounded_label(pair_frame, bg='white', fg='#2C2C2C', radius=4, height=48, text=key, font=('Arial', 16, 'bold'))
+                    lbl_canvas.pack()
                     # Number below
                     num_lbl = tk.Label(pair_frame, text=num, font=('Arial', 12), fg='white', bg='#2C2C2C')
                     num_lbl.pack()
@@ -106,20 +123,20 @@ class BrailleApp:
                     pair_frame.pack(side='left', padx=10)  # horizontal spacing between columns
                     if key in ['8', '5', '2']:
                         # Key left, num right
-                        lbl = tk.Label(pair_frame, text=key, font=('Arial', 16, 'bold'), bg='white', fg='#2C2C2C', padx=5, pady=5)
-                        lbl.pack(side='left', padx=(0,10))  # space between key and num
+                        lbl_canvas, _ = create_rounded_label(pair_frame, bg='white', fg='#2C2C2C', radius=4, height=48, text=key, font=('Arial', 16, 'bold'))
+                        lbl_canvas.pack(side='left', padx=(0,10))  # space between key and num
                         num_lbl = tk.Label(pair_frame, text=num, font=('Arial', 12), fg='white', bg='#2C2C2C')
                         num_lbl.pack(side='right')
                     else:
                         # Num left, key right
                         num_lbl = tk.Label(pair_frame, text=num, font=('Arial', 12), fg='white', bg='#2C2C2C')
                         num_lbl.pack(side='left')
-                        lbl = tk.Label(pair_frame, text=key, font=('Arial', 16, 'bold'), bg='white', fg='#2C2C2C', padx=5, pady=5)
-                        lbl.pack(side='right', padx=(10,0))  # space between num and key
+                        lbl_canvas, _ = create_rounded_label(pair_frame, bg='white', fg='#2C2C2C', radius=4, height=48, text=key, font=('Arial', 16, 'bold'))
+                        lbl_canvas.pack(side='right', padx=(10,0))  # space between num and key
 
     def create_instructions(self) -> None:
         # Clear existing
-        for widget in self.instructions_frame.winfo_children():
+        for widget in self.center_instructions.winfo_children():
             widget.destroy()
         # Determine keys based on mode
         if self.mode.name == 'perkins':
@@ -129,21 +146,19 @@ class BrailleApp:
             validate_key = '0'
             delete_key = '.'
         instructions = [
-            [('F2',), ': changer de mode'],
-            [('ENTRÉE',), ': lire'],
-            [(validate_key,), ': valider'],
-            [(delete_key,), ': supprimer']
+            ['Changer de mode', ('F2',)],
+            ['Lire', ('ENTRÉE',)],
+            ['Valider', (validate_key,)],
+            ['Supprimer', (delete_key,)]
         ]
         for parts in instructions:
-            line_frame = tk.Frame(self.instructions_frame, bg='#2C2C2C')
-            line_frame.pack(anchor='w', pady=5)  # vertical spacing
-            for part in parts:
-                if isinstance(part, tuple):
-                    for key in part:
-                        lbl = tk.Label(line_frame, text=key, font=('Arial', 12, 'bold'), bg='white', fg='#2C2C2C', padx=5, pady=5)
-                        lbl.pack(side='left', padx=2)
-                else:
-                    tk.Label(line_frame, text=part, font=('Arial', 12), fg='white', bg='#2C2C2C').pack(side='left')
+            line_frame = tk.Frame(self.center_instructions, bg='#2C2C2C')
+            line_frame.pack(fill='x', pady=5)  # vertical spacing
+            action, key_tuple = parts
+            tk.Label(line_frame, text=action, font=('Arial', 12, 'bold'), fg='white', bg='#2C2C2C').pack(side='left')
+            for key in key_tuple:
+                lbl_canvas, _ = create_rounded_label(line_frame, bg='white', fg='#2C2C2C', radius=4, height=30, text=key, font=('Arial', 12, 'bold'))
+                lbl_canvas.pack(side='right')
 
     def run(self) -> None:
         self.root.mainloop()
@@ -153,7 +168,7 @@ class BrailleApp:
         if self.translator.number_mode:
             text += '⠼'
 
-        self.label.config(text=text)
+        self.input_canvas.itemconfig(self.input_text_id, text=text)
 
         # Update mode
         mode_color = '#E0B0FF' if self.mode.name == 'perkins' else '#FFFF99'
@@ -161,10 +176,11 @@ class BrailleApp:
         self.desc_label.config(text=self.mode.description)
 
         # Buffer
-        self.buffer_value.config(text=str(sorted(self.current_buffer)))
+        self.buffer_canvas.itemconfig(self.buffer_text_id, text=' '.join(map(str, sorted(self.current_buffer))), fill='blue', font=('Arial', 12, 'bold'))
 
         # Number preview
-        self.number_value.config(text='Activé' if self.translator.number_mode else 'Désactivé')
+        status = self.translator.number_mode
+        self.number_value.config(text='ACTIVÉ' if status else 'DÉSACTIVÉ', fg='lime' if status else 'orange')
 
     def add_dot(self, dot: int) -> None:
         self.current_buffer.add(dot)
@@ -223,7 +239,11 @@ class BrailleApp:
             if self.delete_job is not None:
                 self.root.after_cancel(self.delete_job)
                 self.delete_job = None
-                self.delete_short()
+                if self.translator.number_mode:
+                    self.translator.number_mode = False
+                    self.update_ui()
+                else:
+                    self.delete_short()
 
     def _long_delete(self) -> None:
         if self.delete_held:
