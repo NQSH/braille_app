@@ -176,7 +176,7 @@ class BrailleApp:
         self.desc_label.config(text=self.mode.description)
 
         # Buffer
-        self.buffer_canvas.itemconfig(self.buffer_text_id, text=' '.join(map(str, sorted(self.current_buffer))), fill='blue', font=('Arial', 12, 'bold'))
+        self.buffer_canvas.itemconfig(self.buffer_text_id, text=' '.join(map(str, sorted(self.current_buffer))), fill='dodger blue', font=('Arial', 12, 'bold'))
 
         # Number preview
         status = self.translator.number_mode
