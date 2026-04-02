@@ -26,10 +26,24 @@ LETTER_MAP: Dict[DotSet, str] = {
     frozenset({2, 3, 4, 5}): 't',
     frozenset({1, 3, 6}): 'u',
     frozenset({1, 2, 3, 6}): 'v',
-    frozenset({2, 4, 5, 6}): 'w',
     frozenset({1, 3, 4, 6}): 'x',
     frozenset({1, 3, 4, 5, 6}): 'y',
     frozenset({1, 3, 5, 6}): 'z',
+    frozenset({1, 2, 3, 4, 6}): 'ç',
+    frozenset({1, 2, 3, 4, 5, 6}): 'é',
+    frozenset({1, 2, 3, 5, 6}): 'à',
+    frozenset({2, 3, 4, 6}): 'è',
+    frozenset({2, 3, 4, 5, 6}): 'ù',
+    frozenset({1, 6}): 'â',
+    frozenset({1, 2, 6}): 'ê',
+    frozenset({1, 4, 6}): 'î',
+    frozenset({1, 4, 5, 6}): 'ô',
+    frozenset({1, 5, 6}): 'û',
+    frozenset({1, 2, 4, 6}): 'ë',
+    frozenset({1, 2, 4, 5, 6}): 'ï',
+    frozenset({1, 2, 5, 6}): 'ü',
+    frozenset({2, 4, 6}): 'œ',
+    frozenset({2, 4, 5, 6}): 'w',
 }
 
 PUNCTUATION_MAP: Dict[DotSet, str] = {
@@ -40,9 +54,8 @@ PUNCTUATION_MAP: Dict[DotSet, str] = {
     frozenset({2, 3, 6}): '?',
     frozenset({2, 3, 5}): '!',
     frozenset({3}): "'",
-    frozenset({3, 6}): '-',
-    frozenset({3, 4}): '/',
-    frozenset({2, 3, 5, 6}): '+',
+    frozenset({1, 6}): '(',
+    frozenset({3, 4, 5, 6}): ')',
 }
 
 DIGIT_MAP: Dict[DotSet, str] = {
@@ -58,50 +71,8 @@ DIGIT_MAP: Dict[DotSet, str] = {
     frozenset({2, 4, 5}): '0',
 }
 
-ACCENTED_MAP: Dict[DotSet, str] = {
-    # Voyelles accentuées avec modifications
-    frozenset({1, 5, 6}): 'à',
-    frozenset({1, 2, 3, 6}): 'é',
-    frozenset({1, 5, 4, 6}): 'è',
-    frozenset({1, 2, 4, 6}): 'ê',
-    frozenset({1, 2, 5, 6}): 'ë',
-    frozenset({2, 4, 6}): 'î',
-    frozenset({2, 4, 5, 6}): 'ï',
-    frozenset({1, 3, 5, 6}): 'ô',
-    frozenset({1, 2, 6}): 'ù',
-    frozenset({1, 2, 3, 4, 6}): 'û',
-    frozenset({1, 3, 4, 6}): 'ü',
-    frozenset({2, 3, 4, 6}): 'ö',
-    # Autres caractères spéciaux
-    frozenset({1, 2, 3, 4, 5, 6}): 'ç',
-    frozenset({2, 3, 5, 6}): 'œ',
-    frozenset({1, 2, 6}): 'æ',
-}
 
-SPECIAL_SYMBOLS: Dict[DotSet, str] = {
-    frozenset({1, 2, 3, 4, 5, 6}): 'ç',
-    frozenset({1, 6}): '(',
-    frozenset({3, 4, 5, 6}): ')',
-    frozenset({2, 3, 4, 5, 6}): '[',
-    frozenset({1, 2, 5, 6}): ']',
-    frozenset({1, 2, 3, 5, 6}): '{',
-    frozenset({2, 3, 4, 5, 6}): '}',
-    frozenset({4, 5, 6}): '@',
-    frozenset({1, 2, 4, 5, 6}): '$',
-    frozenset({3, 4, 5, 6}): '%',
-    frozenset({1, 6}): '*',
-    frozenset({1, 2, 3, 4, 5, 6}): '&',
-    frozenset({1, 2, 4, 5, 6}): '=',
-    frozenset({1, 2, 3, 4, 5, 6}): '<',
-    frozenset({1, 2, 3, 4, 5, 6}): '>',
-    frozenset({1, 4, 5, 6}): '^',
-    frozenset({1, 2, 3, 5, 6}): '~',
-    frozenset({1, 2, 5}): '|',
-    frozenset({1, 2, 4, 5, 6}): '\\',
-    frozenset({3, 5, 6}): ' ',  # Espace
-}
-
-EXTENDED_MAP: Dict[DotSet, str] = {**LETTER_MAP, **DIGIT_MAP, **PUNCTUATION_MAP, **ACCENTED_MAP}
+EXTENDED_MAP: Dict[DotSet, str] = {**LETTER_MAP, **DIGIT_MAP, **PUNCTUATION_MAP}
 
 
 class BrailleTranslator:

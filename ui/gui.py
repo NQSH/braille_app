@@ -1,7 +1,7 @@
 import tkinter as tk
 from typing import Optional
 
-from braille.mapping import BrailleTranslator, LETTER_MAP, DIGIT_MAP, PUNCTUATION_MAP, ACCENTED_MAP
+from braille.mapping import BrailleTranslator, LETTER_MAP, DIGIT_MAP, PUNCTUATION_MAP
 from braille.mode import AVAILABLE_MODES
 from speech.sapi import speak
 from ui.components import create_rounded_label, create_braille_canvas, create_braille_grid
@@ -48,6 +48,8 @@ class BrailleApp:
         self.right_frame.grid(row=0, column=2, sticky='nsew')
         self.right_frame.grid_rowconfigure(0, weight=1)
         self.right_frame.grid_rowconfigure(1, weight=1)
+        self.right_frame.grid_rowconfigure(2, weight=1)
+        self.right_frame.grid_rowconfigure(3, weight=1)
         self.right_frame.grid_columnconfigure(0, weight=1)
 
         # Main frame in center
@@ -292,27 +294,34 @@ class BrailleApp:
         self.root.destroy()
 
     def create_left_panels(self) -> None:
+        pass
+
+    def create_right_panels(self) -> None:
         # Alphabet top left
-        alphabet_frame = tk.Frame(self.left_frame, bg='#2C2C2C')
+        alphabet_frame = tk.Frame(self.right_frame, bg='#2C2C2C')
         alphabet_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
         tk.Label(alphabet_frame, text='Alphabet', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
-        create_braille_grid(alphabet_frame, LETTER_MAP, breaks=['k', 'u'])
+        create_braille_grid(alphabet_frame, LETTER_MAP)
+
+        # Signe majuscule middle left
+        special_frame = tk.Frame(self.right_frame, bg='#2C2C2C')
+        special_frame.grid(row=1, column=0, sticky='nsew', padx=10, pady=10)
+
+        tk.Label(special_frame, text='Signe majuscule', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
+        create_braille_grid(special_frame, {frozenset({4, 6}): ''})
+        
+        tk.Label(special_frame, text='Signe numérique', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
+        create_braille_grid(special_frame, {frozenset({3, 4, 5, 6}): ''})
 
         # Numbers bottom left
-        numbers_frame = tk.Frame(self.left_frame, bg='#2C2C2C')
-        numbers_frame.grid(row=1, column=0, sticky='nsew', padx=10, pady=10)
+        numbers_frame = tk.Frame(self.right_frame, bg='#2C2C2C')
+        numbers_frame.grid(row=2, column=0, sticky='nsew', padx=10, pady=10)
         tk.Label(numbers_frame, text='Chiffres', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
         create_braille_grid(numbers_frame, DIGIT_MAP)
 
-    def create_right_panels(self) -> None:
-        # Accented characters top right
-        special_frame = tk.Frame(self.right_frame, bg='#2C2C2C')
-        special_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
-        tk.Label(special_frame, text='Caractères accentués', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
-        create_braille_grid(special_frame, ACCENTED_MAP)
-
         # Punctuation bottom right
         punctuation_frame = tk.Frame(self.right_frame, bg='#2C2C2C')
-        punctuation_frame.grid(row=1, column=0, sticky='nsew', padx=10, pady=10)
+        punctuation_frame.grid(row=3, column=0, sticky='nsew', padx=10, pady=10)
         tk.Label(punctuation_frame, text='Ponctuation', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
         create_braille_grid(punctuation_frame, PUNCTUATION_MAP)
+
