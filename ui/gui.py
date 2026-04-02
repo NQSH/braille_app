@@ -38,10 +38,15 @@ class BrailleApp:
         self.root = tk.Tk()
         self.root.title('Brapp')
         self.root.configure(bg='#2C2C2C')  # dark anthracite gray
+        self.root.attributes('-fullscreen', True)  # Full screen
 
-        # Main frame with padding
-        self.main_frame = tk.Frame(self.root, bg='#2C2C2C')
-        self.main_frame.pack(padx=20, pady=20, fill='both', expand=True)
+        # Container frame that fills the screen
+        self.container = tk.Frame(self.root, bg='#2C2C2C')
+        self.container.pack(fill='both', expand=True)
+
+        # Main frame centered in the container
+        self.main_frame = tk.Frame(self.container, bg='#2C2C2C')
+        self.main_frame.place(relx=0.5, rely=0.5, anchor='center')
 
         # Mode de saisie label
         tk.Label(self.main_frame, text='Mode de saisie', font=('Arial', 14), fg='white', bg='#2C2C2C').pack(pady=(0, 5))
@@ -87,18 +92,9 @@ class BrailleApp:
         self.root.bind('<KeyRelease>', self.on_key_release)
         self.root.bind(f'<{self.speech_key}>', self.on_enter)
         self.root.bind('<F2>', self.on_toggle_mode)
+        self.root.bind('<Escape>', self.on_escape)
 
         self.update_ui()
-
-        # Center the window on screen
-        self.root.update_idletasks()
-        width = self.root.winfo_reqwidth()
-        height = self.root.winfo_reqheight()
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
-        x = (screen_width - width) // 2
-        y = (screen_height - height) // 2
-        self.root.geometry(f"{width}x{height}+{x}+{y}")
 
     def create_indications(self) -> None:
         # Clear existing
@@ -281,12 +277,5 @@ class BrailleApp:
         self.create_instructions()
         self.update_ui()
 
-        # Resize and recenter the window after mode change
-        self.root.update_idletasks()
-        width = self.root.winfo_reqwidth()
-        height = self.root.winfo_reqheight()
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
-        x = (screen_width - width) // 2
-        y = (screen_height - height) // 2
-        self.root.geometry(f"{width}x{height}+{x}+{y}")
+    def on_escape(self, event: tk.Event) -> None:
+        self.root.destroy()
