@@ -115,7 +115,7 @@ class BrailleApp:
             widget.destroy()
         if self.mode.name == 'perkins':
             # Keys and numbers vertically aligned
-            perkins_keys = [('S', '1'), ('D', '2'), ('F', '3'), (' ', ' '), ('H', '4'), ('J', '5'), ('K', '6')]
+            perkins_keys = [('S', '3'), ('D', '2'), ('F', '1'), (' ', ' '), ('J', '4'), ('K', '5'), ('L', '6')]
             for key, num in perkins_keys:
                 if key == ' ':
                     tk.Label(self.indications_frame, text=' ', bg='#2C2C2C').pack(side='left', padx=10)
@@ -161,7 +161,7 @@ class BrailleApp:
         # Determine keys based on mode
         if self.mode.name == 'perkins':
             validate_key = 'SPACE'
-            delete_key = 'L'
+            delete_key = 'M'
             speech_key = 'G'
         else:  # numpad
             validate_key = '0'

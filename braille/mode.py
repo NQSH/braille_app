@@ -30,16 +30,16 @@ NUMPAD_MODE = InputMode(
 PERKINS_MODE = InputMode(
     name='perkins',
     dot_key_map={
-        's': 1,
+        's': 3,
         'd': 2,
-        'f': 3,
-        'h': 4,
-        'j': 5,
-        'k': 6,
+        'f': 1,
+        'j': 4,
+        'k': 5,
+        'l': 6,
     },
     validate_keys=frozenset({'space'}),
-    delete_keys=frozenset({'l'}),
-    delete_hold_key='l',
+    delete_keys=frozenset({'m'}),
+    delete_hold_key='m',
     description='Saisie braille séquentielle façon Perkins',
 )
 

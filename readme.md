@@ -14,12 +14,12 @@ Application Python modulaire permettant de saisir du braille via un clavier stan
 - ⏎ Lecture vocale avec la touche `Entrée`
 - 🧹 Validation du caractère avec `0` ou `Espace`
 - ➕ Espace automatique si la touche de validation est pressée à vide
-- ❌ Suppression avec `.` / `BackSpace` ou `l` selon le mode
+- ❌ Suppression avec `.` / `BackSpace` ou `m` selon le mode
   - appui court → supprimer 1 caractère
   - appui long (> 1 seconde) → supprimer tout le texte
 - 🔁 Deux modes de saisie
   - `numpad` : clavier numérique classique
-  - `perkins` : saisie type Perkins avec `s d f h j k`
+  - `perkins` : saisie type Perkins avec `s d f h j k l`
 
 ---
 
@@ -38,14 +38,15 @@ Application Python modulaire permettant de saisir du braille via un clavier stan
 
 ## Mode `perkins`
 
-- s → point 1
+- s → point 3
 - d → point 2
-- f → point 3
-- h → point 4
-- j → point 5
-- k → point 6
+- f → point 1
+- h → point 6
+- j → point 3
+- k → point 4
+- l → point 5
 - `Espace` → valider lettre ou espace
-- l → supprimer
+- m → supprimer
 
 ## Switcher de mode
 

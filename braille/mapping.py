@@ -72,7 +72,7 @@ DIGIT_MAP: Dict[DotSet, str] = {
 }
 
 
-EXTENDED_MAP: Dict[DotSet, str] = {**LETTER_MAP, **DIGIT_MAP, **PUNCTUATION_MAP}
+EXTENDED_MAP: Dict[DotSet, str] = {**LETTER_MAP, **PUNCTUATION_MAP}
 
 
 class BrailleTranslator:
