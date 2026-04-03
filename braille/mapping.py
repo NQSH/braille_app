@@ -1,7 +1,8 @@
 from typing import Dict, FrozenSet, Optional, Tuple
 
 DotSet = FrozenSet[int]
-NUMBER_SIGN = frozenset({3, 4, 5, 6})
+NUMBER_SIGN = frozenset({6})
+CAPITALS_SIGN = frozenset({4, 6})
 
 LETTER_MAP: Dict[DotSet, str] = {
     frozenset({1}): 'a',
@@ -78,18 +79,31 @@ EXTENDED_MAP: Dict[DotSet, str] = {**LETTER_MAP, **PUNCTUATION_MAP}
 class BrailleTranslator:
     def __init__(self) -> None:
         self.number_mode = False
+        self.capitals_mode = False
 
     def reset(self) -> None:
         self.number_mode = False
+        self.capitals_mode = False
 
     def translate(self, dots: DotSet) -> Tuple[Optional[str], bool]:
-        if dots == NUMBER_SIGN:
-            self.number_mode = True
-            return None, True
-
         if self.number_mode:
             result = DIGIT_MAP.get(dots)
             self.number_mode = False
             return (result if result is not None else '?'), False
+
+        if self.capitals_mode:
+            result = EXTENDED_MAP.get(dots)
+            self.capitals_mode = False
+            if result is not None:
+                return (result.upper(), False)
+            return ('?', False)
+
+        if dots == NUMBER_SIGN:
+            self.number_mode = True
+            return None, True
+
+        if dots == CAPITALS_SIGN:
+            self.capitals_mode = True
+            return None, True
 
         return (EXTENDED_MAP.get(dots, '?'), False)

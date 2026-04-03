@@ -74,20 +74,21 @@ class BrailleApp:
         self.input_canvas, self.input_text_id = create_rounded_label(self.main_frame, bg='white', fg='black', radius=8, width=600, height=150, text='', font=('Arial', 24))
         self.input_canvas.pack(padx=10, pady=10)
 
-        # Buffer and number preview
+        # Buffer and mode status
         buffer_frame = tk.Frame(self.main_frame, bg='#2C2C2C', width=600, height=50)
         buffer_frame.pack(pady=5)
         buffer_frame.pack_propagate(False)
-        # Left: Buffer fully left
-        buffer_title = tk.Label(buffer_frame, text='Buffer', font=('Arial', 12, 'bold'), fg='white', bg='#2C2C2C')
-        buffer_title.pack(side='left')
+        # Left: Mode status
+        mode_title = tk.Label(buffer_frame, text='Mode', font=('Arial', 12, 'bold'), fg='white', bg='#2C2C2C')
+        mode_title.pack(side='left')
+        self.mode_value = tk.Label(buffer_frame, text='', font=('Arial', 12, 'bold'), bg='#2C2C2C', fg='white')
+        self.mode_value.pack(side='left', padx=(0, 20))
+        
+        # Right: Buffer fully right
         self.buffer_canvas, self.buffer_text_id = create_rounded_label(buffer_frame, bg='white', fg='#2C2C2C', radius=4, width=120, height=30, text='', font=('Arial', 12, 'bold'))
-        self.buffer_canvas.pack(side='left', padx=(10, 0))
-        # Right: Mode nombre fully right
-        self.number_value = tk.Label(buffer_frame, text='', font=('Arial', 14, 'bold'), bg='#2C2C2C', fg='white')
-        self.number_value.pack(side='right')
-        number_title = tk.Label(buffer_frame, text='Mode nombre', font=('Arial', 12, 'bold'), fg='white', bg='#2C2C2C')
-        number_title.pack(side='right', padx=(0, 10))
+        self.buffer_canvas.pack(side='right', padx=(10, 0))
+        buffer_title = tk.Label(buffer_frame, text='Buffer', font=('Arial', 12, 'bold'), fg='white', bg='#2C2C2C')
+        buffer_title.pack(side='right')
 
         # Mode indications
         self.indications_frame = tk.Frame(self.main_frame, bg='#2C2C2C')
@@ -189,6 +190,8 @@ class BrailleApp:
         text = self.current_text
         if self.translator.number_mode:
             text += '⠼'
+        if self.translator.capitals_mode:
+            text += '⠠'
 
         self.input_canvas.itemconfig(self.input_text_id, text=text)
 
@@ -200,9 +203,17 @@ class BrailleApp:
         # Buffer
         self.buffer_canvas.itemconfig(self.buffer_text_id, text=' '.join(map(str, sorted(self.current_buffer))), fill='dodger blue', font=('Arial', 12, 'bold'))
 
-        # Number preview
-        status = self.translator.number_mode
-        self.number_value.config(text='ACTIVÉ' if status else 'DÉSACTIVÉ', fg='lime' if status else 'orange')
+        # Mode status
+        if self.translator.number_mode:
+            mode_text = 'NOMBRE'
+            mode_color = 'lime'
+        elif self.translator.capitals_mode:
+            mode_text = 'MAJUSCULE'
+            mode_color = 'orange'
+        else:
+            mode_text = 'AUCUN'
+            mode_color = '#A9A9A9'
+        self.mode_value.config(text=mode_text, fg=mode_color)
 
     def add_dot(self, dot: int) -> None:
         self.current_buffer.add(dot)
@@ -261,7 +272,10 @@ class BrailleApp:
             if self.delete_job is not None:
                 self.root.after_cancel(self.delete_job)
                 self.delete_job = None
-                if self.translator.number_mode:
+                if self.translator.capitals_mode:
+                    self.translator.capitals_mode = False
+                    self.update_ui()
+                elif self.translator.number_mode:
                     self.translator.number_mode = False
                     self.update_ui()
                 else:
@@ -311,7 +325,7 @@ class BrailleApp:
         create_braille_grid(special_frame, {frozenset({4, 6}): ''})
         
         tk.Label(special_frame, text='Signe numérique', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
-        create_braille_grid(special_frame, {frozenset({3, 4, 5, 6}): ''})
+        create_braille_grid(special_frame, {frozenset({6}): ''})
 
         # Numbers bottom left
         numbers_frame = tk.Frame(self.right_frame, bg='#2C2C2C')
