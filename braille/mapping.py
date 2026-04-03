@@ -56,6 +56,7 @@ PUNCTUATION_MAP: Dict[DotSet, str] = {
     frozenset({2, 3, 5}): '!',
     frozenset({3}): "'",
     frozenset({1, 6}): '(',
+    frozenset({3, 5}): '*',
     frozenset({3, 4, 5, 6}): ')',
 }
 
