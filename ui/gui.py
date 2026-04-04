@@ -13,6 +13,7 @@ class BrailleApp:
         self.translator = BrailleTranslator()
         self.mode = AVAILABLE_MODES[1]
         self.speech_key = 'g' if self.mode.name == 'perkins' else 'Return'
+        self.masked_mode = False
         self.current_buffer: set[int] = set()
         self.current_text = ''
         self.delete_job: Optional[str] = None
@@ -68,6 +69,34 @@ class BrailleApp:
         self.center_bottom_spacer = tk.Frame(self.center_frame, bg='#2C2C2C')
         self.center_bottom_spacer.grid(row=2, column=0, sticky='nsew')
 
+        self.mask_overlay = tk.Frame(self.root, bg='black')
+        self.mask_message_frame = tk.Frame(self.mask_overlay, bg='black')
+        self.mask_message_frame.place(relx=0.5, rely=0.5, anchor='center')
+        tk.Label(
+            self.mask_message_frame,
+            text='Appuyer sur',
+            font=('Arial', 28, 'bold'),
+            fg='white',
+            bg='black'
+        ).pack(side='left', padx=(0, 20))
+        self.mask_key_canvas, _ = create_rounded_label(
+            self.mask_message_frame,
+            bg='white',
+            fg='#2C2C2C',
+            radius=8,
+            height=56,
+            text='F3',
+            font=('Arial', 24, 'bold')
+        )
+        self.mask_key_canvas.pack(side='left', padx=20)
+        tk.Label(
+            self.mask_message_frame,
+            text='pour quitter le mode masqué',
+            font=('Arial', 28, 'bold'),
+            fg='white',
+            bg='black'
+        ).pack(side='left', padx=(20, 0))
+
         # Create side panels
         self.create_left_panels()
         self.create_right_panels()
@@ -111,6 +140,7 @@ class BrailleApp:
         self.root.bind('<KeyRelease>', self.on_key_release)
         self.root.bind(f'<{self.speech_key}>', self.on_enter)
         self.root.bind('<F2>', self.on_toggle_mode)
+        self.root.bind('<F3>', self.on_toggle_mask)
         self.root.bind('<Escape>', self.on_escape)
 
         self.update_ui()
@@ -281,6 +311,17 @@ class BrailleApp:
         self.create_left_panels()
         self.update_ui()
 
+    def on_toggle_mask(self, event: tk.Event) -> None:
+        self.masked_mode = not self.masked_mode
+        if self.masked_mode:
+            self.mask_overlay.place(relx=0, rely=0, relwidth=1, relheight=1)
+            self.mask_overlay.lift()
+            self.mask_overlay.focus_set()
+            return
+
+        self.mask_overlay.place_forget()
+        self.container.focus_set()
+
     def on_escape(self, event: tk.Event) -> None:
         self.root.destroy()
 
@@ -290,7 +331,7 @@ class BrailleApp:
 
         sections = [
             ('BRAPP', tuple(), ('Arial', 28, 'bold')),
-            ('FONCTIONS', (('Changer de mode', 'F2'),)),
+            ('FONCTIONS', (('Changer de mode', 'F2'), ('Mode masqué', 'F3'))),
             ('CONTEXTE', self._get_context_actions()),
             ('AUTRE', (('Fermer', 'ECHAP'),)),
         ]
@@ -310,12 +351,12 @@ class BrailleApp:
 
             tk.Label(panel, text=title, font=title_font, fg='white', bg='#2C2C2C').pack(anchor='nw', padx=12, pady=(12, 10))
             actions_frame = tk.Frame(panel, bg='#2C2C2C')
-            actions_frame.pack(fill='x', anchor='nw', padx=12, pady=(0, 12))
+            actions_frame.pack(fill='x', anchor='nw', padx=12, pady=(2, 14))
 
             for action, key in actions:
                 line_frame = tk.Frame(actions_frame, bg='#2C2C2C')
-                line_frame.pack(fill='x', pady=4)
-                tk.Label(line_frame, text=action, font=('Arial', 12, 'bold'), fg='white', bg='#2C2C2C').pack(side='left', anchor='w')
+                line_frame.pack(fill='x', pady=7)
+                tk.Label(line_frame, text=action, font=('Arial', 12, 'bold'), fg='white', bg='#2C2C2C').pack(side='left', anchor='w', padx=(30, 0))
                 lbl_canvas, _ = create_rounded_label(
                     line_frame,
                     bg='white',
@@ -325,7 +366,7 @@ class BrailleApp:
                     text=key,
                     font=('Arial', 14, 'bold')
                 )
-                lbl_canvas.pack(side='right')
+                lbl_canvas.pack(side='right',)
 
     def _get_context_actions(self) -> tuple[tuple[str, str], ...]:
         if self.mode.name == 'perkins':
