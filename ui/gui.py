@@ -37,6 +37,8 @@ class BrailleApp:
         self.left_frame.grid(row=0, column=0, sticky='nsew')
         self.left_frame.grid_rowconfigure(0, weight=1)
         self.left_frame.grid_rowconfigure(1, weight=1)
+        self.left_frame.grid_rowconfigure(2, weight=1)
+        self.left_frame.grid_rowconfigure(3, weight=1)
         self.left_frame.grid_columnconfigure(0, weight=1)
 
         # Center panel
@@ -95,13 +97,6 @@ class BrailleApp:
         self.indications_frame.pack(pady=10)
         self.create_indications()
 
-        # Instructions at bottom
-        self.instructions_frame = tk.Frame(self.main_frame, bg='#2C2C2C')
-        self.instructions_frame.pack(pady=10, fill='x')
-        self.center_instructions = tk.Frame(self.instructions_frame, bg='#2C2C2C')
-        self.center_instructions.pack(fill='x', padx=100)
-        self.create_instructions()
-
         self.root.bind('<KeyPress>', self.on_key_press)
         self.root.bind('<KeyRelease>', self.on_key_release)
         self.root.bind(f'<{self.speech_key}>', self.on_enter)
@@ -154,34 +149,6 @@ class BrailleApp:
                         num_lbl.pack(side='left')
                         lbl_canvas, _ = create_rounded_label(pair_frame, bg='white', fg='#2C2C2C', radius=4, height=48, text=key, font=('Arial', 16, 'bold'))
                         lbl_canvas.pack(side='right', padx=(10,0))  # space between num and key
-
-    def create_instructions(self) -> None:
-        # Clear existing
-        for widget in self.center_instructions.winfo_children():
-            widget.destroy()
-        # Determine keys based on mode
-        if self.mode.name == 'perkins':
-            validate_key = 'SPACE'
-            delete_key = 'M'
-            speech_key = 'G'
-        else:  # numpad
-            validate_key = '0'
-            delete_key = '.'
-            speech_key = 'ENTRÉE'
-        instructions = [
-            ['Changer de mode', ('F2',)],
-            ['Lire', (speech_key,)],
-            ['Valider', (validate_key,)],
-            ['Supprimer', (delete_key,)]
-        ]
-        for parts in instructions:
-            line_frame = tk.Frame(self.center_instructions, bg='#2C2C2C')
-            line_frame.pack(fill='x', pady=5)  # vertical spacing
-            action, key_tuple = parts
-            tk.Label(line_frame, text=action, font=('Arial', 12, 'bold'), fg='white', bg='#2C2C2C').pack(side='left')
-            for key in key_tuple:
-                lbl_canvas, _ = create_rounded_label(line_frame, bg='white', fg='#2C2C2C', radius=4, height=30, text=key, font=('Arial', 12, 'bold'))
-                lbl_canvas.pack(side='right')
 
     def run(self) -> None:
         self.root.mainloop()
@@ -301,14 +268,67 @@ class BrailleApp:
             self.root.unbind(f'<{old_key}>')
             self.root.bind(f'<{self.speech_key}>', self.on_enter)
         self.create_indications()
-        self.create_instructions()
+        self.create_left_panels()
         self.update_ui()
 
     def on_escape(self, event: tk.Event) -> None:
         self.root.destroy()
 
     def create_left_panels(self) -> None:
-        pass
+        for widget in self.left_frame.winfo_children():
+            widget.destroy()
+
+        sections = [
+            ('BRAPP', tuple(), ('Arial', 28, 'bold')),
+            ('FONCTIONS', (('Changer de mode', 'F2'),)),
+            ('CONTEXTE', self._get_context_actions()),
+            ('AUTRE', (('Fermer', 'ECHAP'),)),
+        ]
+
+        for row, section in enumerate(sections):
+            title = section[0]
+            actions = section[1]
+            title_font = section[2] if len(section) > 2 else ('Arial', 16, 'bold')
+            horizontal_padding = 10 if row == 0 else 20
+
+            panel = tk.Frame(self.left_frame, bg='#2C2C2C')
+            panel.grid(row=row, column=0, sticky='nsew', padx=horizontal_padding, pady=10)
+
+            if row == 0:
+                tk.Label(panel, text=title, font=title_font, fg='white', bg='#2C2C2C').pack(anchor='nw', padx=12, pady=12)
+                continue
+
+            tk.Label(panel, text=title, font=title_font, fg='white', bg='#2C2C2C').pack(anchor='nw', padx=12, pady=(12, 10))
+            actions_frame = tk.Frame(panel, bg='#2C2C2C')
+            actions_frame.pack(fill='x', anchor='nw', padx=12, pady=(0, 12))
+
+            for action, key in actions:
+                line_frame = tk.Frame(actions_frame, bg='#2C2C2C')
+                line_frame.pack(fill='x', pady=4)
+                tk.Label(line_frame, text=action, font=('Arial', 12, 'bold'), fg='white', bg='#2C2C2C').pack(side='left', anchor='w')
+                lbl_canvas, _ = create_rounded_label(
+                    line_frame,
+                    bg='white',
+                    fg='#2C2C2C',
+                    radius=4,
+                    height=36,
+                    text=key,
+                    font=('Arial', 14, 'bold')
+                )
+                lbl_canvas.pack(side='right')
+
+    def _get_context_actions(self) -> tuple[tuple[str, str], ...]:
+        if self.mode.name == 'perkins':
+            return (
+                ('Valider', 'SPACE'),
+                ('Supprimer', 'M'),
+                ('Lire', 'G'),
+            )
+        return (
+            ('Valider', '0'),
+            ('Supprimer', '.'),
+            ('Lire', 'ENTRÉE'),
+        )
 
     def create_right_panels(self) -> None:
         # Alphabet top left

@@ -1,9 +1,9 @@
 import tkinter as tk
 
 
-def create_rounded_label(parent, bg, fg, radius, width=100, height=50, text='', font=('Arial', 12), pixels_per_char=10):
+def create_rounded_label(parent, bg, fg, radius, width=100, height=50, text='', font=('Arial', 12), pixels_per_char=12):
     if text:
-        width = len(text) * pixels_per_char + 20
+        width = len(text) * pixels_per_char + 30
         if height == 50:
             height = font[1] + 10 if len(font) > 1 else 30
 
