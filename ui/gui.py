@@ -44,6 +44,10 @@ class BrailleApp:
         # Center panel
         self.center_frame = tk.Frame(self.container, bg='#2C2C2C')
         self.center_frame.grid(row=0, column=1, sticky='nsew')
+        self.center_frame.grid_rowconfigure(0, weight=1)
+        self.center_frame.grid_rowconfigure(1, weight=0)
+        self.center_frame.grid_rowconfigure(2, weight=1)
+        self.center_frame.grid_columnconfigure(0, weight=1)
 
         # Right panel
         self.right_frame = tk.Frame(self.container, bg='#2C2C2C')
@@ -54,9 +58,15 @@ class BrailleApp:
         self.right_frame.grid_rowconfigure(3, weight=1)
         self.right_frame.grid_columnconfigure(0, weight=1)
 
-        # Main frame in center
+        # Spacer + content + spacer to keep the central block centered
+        self.center_top_spacer = tk.Frame(self.center_frame, bg='#2C2C2C')
+        self.center_top_spacer.grid(row=0, column=0, sticky='nsew')
+
         self.main_frame = tk.Frame(self.center_frame, bg='#2C2C2C')
-        self.main_frame.pack(fill='both', expand=True)
+        self.main_frame.grid(row=1, column=0)
+
+        self.center_bottom_spacer = tk.Frame(self.center_frame, bg='#2C2C2C')
+        self.center_bottom_spacer.grid(row=2, column=0, sticky='nsew')
 
         # Create side panels
         self.create_left_panels()
