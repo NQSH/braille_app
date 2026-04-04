@@ -1,0 +1,106 @@
+[
+  {
+    "event": "Notification.Looping.Alarm2",
+    "label": "Alarm 2",
+    "name": "Alarm 2 (Notification.Looping.Alarm2)",
+    "default": "%SystemRoot%\\media\\Alarm02.wav",
+    "current": "%SystemRoot%\\media\\Alarm02.wav",
+    "comment": ""
+  },
+  {
+    "event": "Notification.Looping.Alarm3",
+    "label": "Alarm 3",
+    "name": "Alarm 3 (Notification.Looping.Alarm3)",
+    "default": "%SystemRoot%\\media\\Alarm03.wav",
+    "current": "%SystemRoot%\\media\\Alarm03.wav",
+    "comment": ""
+  },
+  {
+    "event": "Notification.Reminder",
+    "label": "Calendar Reminder",
+    "name": "Calendar Reminder (Notification.Reminder)",
+    "default": "%SystemRoot%\\media\\Windows Notify Calendar.wav",
+    "current": "C:\\windows\\media\\Windows Notify Calendar.wav",
+    "comment": ""
+  },
+  {
+    "event": "CriticalBatteryAlarm",
+    "label": "Critical Battery Alarm",
+    "name": "Critical Battery Alarm (CriticalBatteryAlarm)",
+    "default": "%SystemRoot%\\media\\Windows Foreground.wav",
+    "current": "C:\\windows\\media\\Windows Foreground.wav",
+    "comment": ""
+  },
+  {
+    "event": "DeviceFail",
+    "label": "Device Failed to Connect",
+    "name": "Device Failed to Connect (DeviceFail)",
+    "default": "%SystemRoot%\\media\\Windows Hardware Fail.wav",
+    "current": "C:\\windows\\media\\Windows Hardware Fail.wav",
+    "comment": ""
+  },
+  {
+    "event": "Notification.Looping.Call10",
+    "label": "Incoming Call Notification 10",
+    "name": "Incoming Call Notification 10 (Notification.Looping.Call10)",
+    "default": "%SystemRoot%\\media\\Ring10.wav",
+    "current": "%SystemRoot%\\media\\Ring10.wav",
+    "comment": ""
+  },
+  {
+    "event": "Notification.Looping.Call2",
+    "label": "Incoming Call Notification 2",
+    "name": "Incoming Call Notification 2 (Notification.Looping.Call2)",
+    "default": "%SystemRoot%\\media\\Ring02.wav",
+    "current": "%SystemRoot%\\media\\Ring02.wav",
+    "comment": ""
+  },
+  {
+    "event": "Notification.Looping.Call6",
+    "label": "Incoming Call Notification 6",
+    "name": "Incoming Call Notification 6 (Notification.Looping.Call6)",
+    "default": "%SystemRoot%\\media\\Ring06.wav",
+    "current": "%SystemRoot%\\media\\Ring06.wav",
+    "comment": ""
+  },
+  {
+    "event": "Notification.IM",
+    "label": "Instant Message Notification",
+    "name": "Instant Message Notification (Notification.IM)",
+    "default": "%SystemRoot%\\media\\Windows Notify Messaging.wav",
+    "current": "C:\\windows\\media\\Windows Notify Messaging.wav",
+    "comment": ""
+  },
+  {
+    "event": "MessageNudge",
+    "label": "Message Nudge",
+    "name": "Message Nudge (MessageNudge)",
+    "default": "%SystemRoot%\\media\\Windows Message Nudge.wav",
+    "current": "C:\\windows\\media\\Windows Message Nudge.wav",
+    "comment": ""
+  },
+  {
+    "event": "Notification.Proximity",
+    "label": "NFP Completion",
+    "name": "NFP Completion (Notification.Proximity)",
+    "default": "%SystemRoot%\\media\\Windows Proximity Notification.wav",
+    "current": "C:\\windows\\media\\Windows Proximity Notification.wav",
+    "comment": ""
+  },
+  {
+    "event": "ProximityConnection",
+    "label": "NFP Connection",
+    "name": "NFP Connection (ProximityConnection)",
+    "default": "%SystemRoot%\\media\\Windows Proximity Connection.wav",
+    "current": "C:\\windows\\media\\Windows Proximity Connection.wav",
+    "comment": ""
+  },
+  {
+    "event": "WindowsUnlock",
+    "label": "Windows Unlock",
+    "name": "Windows Unlock (WindowsUnlock)",
+    "default": "%SystemRoot%\\media\\Windows Unlock.wav",
+    "current": "%SystemRoot%\\media\\Windows Unlock.wav",
+    "comment": ""
+  }
+]
