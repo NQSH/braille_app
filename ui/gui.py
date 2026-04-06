@@ -69,7 +69,7 @@ class BrailleApp:
 
         self.reference_overlay = tk.Frame(self.root, bg='#161616')
         self.reference_content = tk.Frame(self.reference_overlay, bg='#161616')
-        self.reference_content.place(relx=0.5, rely=0.5, anchor='center')
+        self.reference_content.place(relx=0, rely=0, relwidth=1, relheight=1)
 
         self.create_help_overlay()
         self.create_reference_overlay()
@@ -221,43 +221,65 @@ class BrailleApp:
         for widget in self.reference_content.winfo_children():
             widget.destroy()
 
+        self.reference_content.grid_rowconfigure(0, weight=0)
+        self.reference_content.grid_rowconfigure(1, weight=1)
+        self.reference_content.grid_rowconfigure(2, weight=0)
+        self.reference_content.grid_columnconfigure(0, weight=1)
+
         tk.Label(
             self.reference_content,
             text='Référentiel braille',
             font=('Arial', 30, 'bold'),
             fg='white',
             bg='#161616'
-        ).pack(pady=(0, 24))
+        ).grid(row=0, column=0, pady=(24, 12))
 
-        top_row = tk.Frame(self.reference_content, bg='#161616')
-        top_row.pack(pady=12)
-        bottom_row = tk.Frame(self.reference_content, bg='#161616')
-        bottom_row.pack(pady=12)
+        grid_frame = tk.Frame(self.reference_content, bg='#161616')
+        grid_frame.grid(row=1, column=0, sticky='nsew', padx=30, pady=18)
+        grid_frame.grid_columnconfigure(0, weight=1)
+        grid_frame.grid_columnconfigure(1, weight=1)
+        grid_frame.grid_rowconfigure(0, weight=1)
+        grid_frame.grid_rowconfigure(1, weight=1)
 
-        sections = (
-            (top_row, 'Alphabet', LETTER_MAP),
-            (top_row, 'Chiffres', DIGIT_MAP),
-            (bottom_row, 'Ponctuation', PUNCTUATION_MAP),
-        )
-        for parent, title, mapping in sections:
-            panel = tk.Frame(parent, bg='#161616')
-            panel.pack(side='left', padx=24)
-            tk.Label(panel, text=title, font=('Arial', 18, 'bold'), fg='white', bg='#161616').pack(pady=(0, 12))
-            create_braille_grid(panel, mapping, max_cols=6)
+        alphabet_panel = tk.Frame(grid_frame, bg='#161616')
+        alphabet_panel.grid(row=0, column=0, padx=18, pady=18, sticky='nsew')
+        alphabet_content = tk.Frame(alphabet_panel, bg='#161616')
+        alphabet_content.place(relx=0.5, rely=0.5, anchor='center')
+        tk.Label(alphabet_content, text='Alphabet', font=('Arial', 18, 'bold'), fg='white', bg='#161616').pack(pady=(0, 12))
+        create_braille_grid(alphabet_content, LETTER_MAP, max_cols=10)
 
-        special_panel = tk.Frame(bottom_row, bg='#161616')
-        special_panel.pack(side='left', padx=24)
-        tk.Label(special_panel, text='Signes', font=('Arial', 18, 'bold'), fg='white', bg='#161616').pack(pady=(0, 12))
+        numbers_panel = tk.Frame(grid_frame, bg='#161616')
+        numbers_panel.grid(row=1, column=0, padx=18, pady=18, sticky='nsew')
+        numbers_content = tk.Frame(numbers_panel, bg='#161616')
+        numbers_content.place(relx=0.5, rely=0.5, anchor='center')
+        tk.Label(numbers_content, text='Chiffres', font=('Arial', 18, 'bold'), fg='white', bg='#161616').pack(pady=(0, 12))
+        create_braille_grid(numbers_content, DIGIT_MAP, max_cols=10)
 
-        capitals_frame = tk.Frame(special_panel, bg='#161616')
-        capitals_frame.pack(pady=(0, 14))
+        punctuation_panel = tk.Frame(grid_frame, bg='#161616')
+        punctuation_panel.grid(row=0, column=1, padx=18, pady=18, sticky='nsew')
+        punctuation_content = tk.Frame(punctuation_panel, bg='#161616')
+        punctuation_content.place(relx=0.5, rely=0.5, anchor='center')
+        tk.Label(punctuation_content, text='Ponctuation', font=('Arial', 18, 'bold'), fg='white', bg='#161616').pack(pady=(0, 12))
+        create_braille_grid(punctuation_content, PUNCTUATION_MAP, max_cols=10)
+
+        special_panel = tk.Frame(grid_frame, bg='#161616')
+        special_panel.grid(row=1, column=1, padx=18, pady=18, sticky='nsew')
+        special_content = tk.Frame(special_panel, bg='#161616')
+        special_content.place(relx=0.5, rely=0.5, anchor='center')
+        tk.Label(special_content, text='Signes', font=('Arial', 18, 'bold'), fg='white', bg='#161616').pack(pady=(0, 12))
+
+        signs_row = tk.Frame(special_content, bg='#161616')
+        signs_row.pack()
+
+        capitals_frame = tk.Frame(signs_row, bg='#161616')
+        capitals_frame.pack(side='left', padx=18)
         tk.Label(capitals_frame, text='Majuscule', font=('Arial', 14, 'bold'), fg='white', bg='#161616').pack(pady=(0, 8))
-        create_braille_grid(capitals_frame, {frozenset({4, 6}): ''}, max_cols=1)
+        create_braille_grid(capitals_frame, {frozenset({4, 6}): ''}, max_cols=10)
 
-        number_frame = tk.Frame(special_panel, bg='#161616')
-        number_frame.pack()
+        number_frame = tk.Frame(signs_row, bg='#161616')
+        number_frame.pack(side='left', padx=18)
         tk.Label(number_frame, text='Numérique', font=('Arial', 14, 'bold'), fg='white', bg='#161616').pack(pady=(0, 8))
-        create_braille_grid(number_frame, {frozenset({6}): ''}, max_cols=1)
+        create_braille_grid(number_frame, {frozenset({6}): ''}, max_cols=10)
 
         tk.Label(
             self.reference_content,
@@ -265,7 +287,7 @@ class BrailleApp:
             font=('Arial', 14),
             fg='#D7D7D7',
             bg='#161616'
-        ).pack(pady=(28, 0))
+        ).grid(row=2, column=0, pady=(12, 24))
 
     def update_ui(self) -> None:
         text = self.current_text
