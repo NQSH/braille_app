@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, FrozenSet, Sequence
+from typing import Dict, FrozenSet
 
 @dataclass(frozen=True)
 class InputMode:
@@ -10,22 +10,6 @@ class InputMode:
     delete_hold_key: str
     description: str
 
-
-NUMPAD_MODE = InputMode(
-    name='numpad',
-    dot_key_map={
-        '7': 1,
-        '4': 2,
-        '1': 3,
-        '8': 4,
-        '5': 5,
-        '2': 6,
-    },
-    validate_keys=frozenset({'0'}),
-    delete_keys=frozenset({'BackSpace', 'period', 'KP_Decimal', 'Delete'}),
-    delete_hold_key='BackSpace',
-    description='Saisie braille sur pavé numérique',
-)
 
 PERKINS_MODE = InputMode(
     name='perkins',
@@ -42,5 +26,3 @@ PERKINS_MODE = InputMode(
     delete_hold_key='m',
     description='Saisie braille séquentielle façon Perkins',
 )
-
-AVAILABLE_MODES: Sequence[InputMode] = [NUMPAD_MODE, PERKINS_MODE]

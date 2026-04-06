@@ -11,46 +11,28 @@ Application Python modulaire permettant de saisir du braille via un clavier stan
 - 🔢 Entrée des chiffres avec le signe nombre suivi des lettres a-j
 - 🪟 Interface graphique simple avec Tkinter
 - 🔊 Lecture vocale du texte (Windows SAPI via pywin32)
-- ⏎ Lecture vocale avec la touche `Entrée`
-- 🧹 Validation du caractère avec `0` ou `Espace`
+- ⏎ Lecture vocale avec la touche `G`
+- 🧹 Validation du caractère avec `Espace`
 - ➕ Espace automatique si la touche de validation est pressée à vide
-- ❌ Suppression avec `.` / `BackSpace` ou `m` selon le mode
+- ❌ Suppression avec `m`
   - appui court → supprimer 1 caractère
   - appui long (> 1 seconde) → supprimer tout le texte
-- 🔁 Deux modes de saisie
-  - `numpad` : clavier numérique classique
-  - `perkins` : saisie type Perkins avec `s d f h j k l`
+- ⌨️ Saisie unique en mode `perkins` avec `s d f j k l`
 
 ---
 
 # 🎮 Modes de saisie
-
-## Mode `numpad`
-
-- 7 → point 1
-- 4 → point 2
-- 1 → point 3
-- 8 → point 4
-- 5 → point 5
-- 2 → point 6
-- 0 → valider lettre ou espace
-- . / BackSpace / Delete → supprimer
 
 ## Mode `perkins`
 
 - s → point 3
 - d → point 2
 - f → point 1
-- h → point 6
-- j → point 3
-- k → point 4
-- l → point 5
+- j → point 4
+- k → point 5
+- l → point 6
 - `Espace` → valider lettre ou espace
 - m → supprimer
-
-## Switcher de mode
-
-- `F2` : changer de mode entre `numpad` et `perkins`
 
 ---
 
@@ -84,7 +66,7 @@ python main.py
 - `main.py` : point d'entrée principal
 - `ui/gui.py` : interface Tkinter et gestion des événements
 - `braille/mapping.py` : conversion des points braille en caractères, chiffres et symboles
-- `braille/mode.py` : définition des modes d'entrée et des touches associées
+- `braille/mode.py` : définition du mode d'entrée Perkins et des touches associées
 - `speech/sapi.py` : synthèse vocale Windows avec pywin32
 
 ---

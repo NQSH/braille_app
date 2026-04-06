@@ -2,7 +2,7 @@ import tkinter as tk
 from typing import Optional
 
 from braille.mapping import BrailleTranslator, LETTER_MAP, DIGIT_MAP, PUNCTUATION_MAP
-from braille.mode import AVAILABLE_MODES
+from braille.mode import PERKINS_MODE
 from speech.sapi import speak
 from ui.components import create_rounded_label, create_braille_canvas, create_braille_grid
 
@@ -11,8 +11,8 @@ from ui.components import create_rounded_label, create_braille_canvas, create_br
 class BrailleApp:
     def __init__(self) -> None:
         self.translator = BrailleTranslator()
-        self.mode = AVAILABLE_MODES[1]
-        self.speech_key = 'g' if self.mode.name == 'perkins' else 'Return'
+        self.mode = PERKINS_MODE
+        self.speech_key = 'g'
         self.masked_mode = False
         self.current_buffer: set[int] = set()
         self.current_text = ''
@@ -139,7 +139,6 @@ class BrailleApp:
         self.root.bind('<KeyPress>', self.on_key_press)
         self.root.bind('<KeyRelease>', self.on_key_release)
         self.root.bind(f'<{self.speech_key}>', self.on_enter)
-        self.root.bind('<F2>', self.on_toggle_mode)
         self.root.bind('<F3>', self.on_toggle_mask)
         self.root.bind('<Escape>', self.on_escape)
 
@@ -149,46 +148,18 @@ class BrailleApp:
         # Clear existing
         for widget in self.indications_frame.winfo_children():
             widget.destroy()
-        if self.mode.name == 'perkins':
-            # Keys and numbers vertically aligned
-            perkins_keys = [('S', '3'), ('D', '2'), ('F', '1'), (' ', ' '), ('J', '4'), ('K', '5'), ('L', '6')]
-            for key, num in perkins_keys:
-                if key == ' ':
-                    tk.Label(self.indications_frame, text=' ', bg='#2C2C2C').pack(side='left', padx=10)
-                else:
-                    pair_frame = tk.Frame(self.indications_frame, bg='#2C2C2C')
-                    pair_frame.pack(side='left', padx=2)
-                    # Key
-                    lbl_canvas, _ = create_rounded_label(pair_frame, bg='white', fg='#2C2C2C', radius=4, height=48, text=key, font=('Arial', 16, 'bold'))
-                    lbl_canvas.pack()
-                    # Number below
-                    num_lbl = tk.Label(pair_frame, text=num, font=('Arial', 12), fg='white', bg='#2C2C2C')
-                    num_lbl.pack()
-        else:
-            # Numpad
-            numpad_layout = [
-                [('7', '1'), ('8', '4')],
-                [('4', '2'), ('5', '5')],
-                [('1', '3'), ('2', '6')]
-            ]
-            for row in numpad_layout:
-                row_frame = tk.Frame(self.indications_frame, bg='#2C2C2C')
-                row_frame.pack(pady=5)  # vertical spacing
-                for key, num in row:
-                    pair_frame = tk.Frame(row_frame, bg='#2C2C2C')
-                    pair_frame.pack(side='left', padx=10)  # horizontal spacing between columns
-                    if key in ['8', '5', '2']:
-                        # Key left, num right
-                        lbl_canvas, _ = create_rounded_label(pair_frame, bg='white', fg='#2C2C2C', radius=4, height=48, text=key, font=('Arial', 16, 'bold'))
-                        lbl_canvas.pack(side='left', padx=(0,10))  # space between key and num
-                        num_lbl = tk.Label(pair_frame, text=num, font=('Arial', 12), fg='white', bg='#2C2C2C')
-                        num_lbl.pack(side='right')
-                    else:
-                        # Num left, key right
-                        num_lbl = tk.Label(pair_frame, text=num, font=('Arial', 12), fg='white', bg='#2C2C2C')
-                        num_lbl.pack(side='left')
-                        lbl_canvas, _ = create_rounded_label(pair_frame, bg='white', fg='#2C2C2C', radius=4, height=48, text=key, font=('Arial', 16, 'bold'))
-                        lbl_canvas.pack(side='right', padx=(10,0))  # space between num and key
+
+        perkins_keys = [('S', '3'), ('D', '2'), ('F', '1'), (' ', ' '), ('J', '4'), ('K', '5'), ('L', '6')]
+        for key, num in perkins_keys:
+            if key == ' ':
+                tk.Label(self.indications_frame, text=' ', bg='#2C2C2C').pack(side='left', padx=10)
+            else:
+                pair_frame = tk.Frame(self.indications_frame, bg='#2C2C2C')
+                pair_frame.pack(side='left', padx=2)
+                lbl_canvas, _ = create_rounded_label(pair_frame, bg='white', fg='#2C2C2C', radius=4, height=48, text=key, font=('Arial', 16, 'bold'))
+                lbl_canvas.pack()
+                num_lbl = tk.Label(pair_frame, text=num, font=('Arial', 12), fg='white', bg='#2C2C2C')
+                num_lbl.pack()
 
     def run(self) -> None:
         self.root.mainloop()
@@ -203,7 +174,7 @@ class BrailleApp:
         self.input_canvas.itemconfig(self.input_text_id, text=text)
 
         # Update mode
-        mode_color = '#E0B0FF' if self.mode.name == 'perkins' else '#FFFF99'
+        mode_color = '#E0B0FF'
         self.mode_label.config(text=self.mode.name.upper(), fg=mode_color)
         self.desc_label.config(text=self.mode.description)
 
@@ -296,21 +267,6 @@ class BrailleApp:
     def on_enter(self, event: tk.Event) -> None:
         speak(self.current_text)
 
-    def on_toggle_mode(self, event: tk.Event) -> None:
-        current_index = AVAILABLE_MODES.index(self.mode)
-        self.mode = AVAILABLE_MODES[(current_index + 1) % len(AVAILABLE_MODES)]
-        self.current_buffer.clear()
-        self.translator.reset()
-        # Update speech key binding
-        old_key = self.speech_key
-        self.speech_key = 'g' if self.mode.name == 'perkins' else 'Return'
-        if old_key != self.speech_key:
-            self.root.unbind(f'<{old_key}>')
-            self.root.bind(f'<{self.speech_key}>', self.on_enter)
-        self.create_indications()
-        self.create_left_panels()
-        self.update_ui()
-
     def on_toggle_mask(self, event: tk.Event) -> None:
         self.masked_mode = not self.masked_mode
         if self.masked_mode:
@@ -331,7 +287,7 @@ class BrailleApp:
 
         sections = [
             ('BRAPP', tuple(), ('Arial', 28, 'bold')),
-            ('FONCTIONS', (('Changer de mode', 'F2'), ('Mode masqué', 'F3'))),
+            ('FONCTIONS', (('Mode masqué', 'F3'),)),
             ('CONTEXTE', self._get_context_actions()),
             ('AUTRE', (('Fermer', 'ECHAP'),)),
         ]
@@ -369,16 +325,10 @@ class BrailleApp:
                 lbl_canvas.pack(side='right',)
 
     def _get_context_actions(self) -> tuple[tuple[str, str], ...]:
-        if self.mode.name == 'perkins':
-            return (
-                ('Valider', 'SPACE'),
-                ('Supprimer', 'M'),
-                ('Lire', 'G'),
-            )
         return (
-            ('Valider', '0'),
-            ('Supprimer', '.'),
-            ('Lire', 'ENTRÉE'),
+            ('Valider', 'SPACE'),
+            ('Supprimer', 'M'),
+            ('Lire', 'G'),
         )
 
     def create_right_panels(self) -> None:

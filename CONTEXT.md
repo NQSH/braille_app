@@ -1,8 +1,8 @@
 Contexte de l’application
 
-Cette application s’inscrit dans une démarche d’accessibilité numérique et d’exploration des modes de saisie alternatifs. Elle propose un système permettant de saisir du texte à l’aide d’un clavier classique, en reproduisant le fonctionnement du braille à partir du pavé numérique.
+Cette application s’inscrit dans une démarche d’accessibilité numérique et d’exploration des modes de saisie alternatifs. Elle propose un système permettant de saisir du texte à l’aide d’un clavier classique, en reproduisant le fonctionnement d’un clavier braille de type Perkins.
 
-Le braille est un système d’écriture tactile utilisé par les personnes non-voyantes ou malvoyantes. Il repose sur une cellule composée de six points, dont les combinaisons permettent de représenter des lettres, chiffres et symboles. Cependant, l’accès à des périphériques braille physiques (comme les claviers Perkins ou les afficheurs braille) peut être limité en raison de leur coût ou de leur disponibilité.
+Le braille est un système d’écriture tactile utilisé par les personnes non-voyantes ou malvoyantes. Il repose sur une cellule composée de six points, dont les combinaisons permettent de représenter des lettres, chiffres et symboles. Cependant, l’accès à des périphériques braille physiques comme les claviers Perkins ou les afficheurs braille peut être limité en raison de leur coût ou de leur disponibilité.
 
 L’objectif de cette application est donc de simuler un clavier braille à partir d’un matériel standard (clavier d’ordinateur), afin de :
 
