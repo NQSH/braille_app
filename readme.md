@@ -39,7 +39,7 @@ Application Python modulaire permettant de saisir du braille via un clavier stan
 
 - `V` → afficher ou fermer l'aide des touches en plein écran
 - `N` → afficher ou fermer le référentiel braille en plein écran
-- `F3` → activer ou désactiver le mode masqué
+- `B` → activer ou désactiver le mode masqué
 - `ECHAP` → fermer une vue plein écran ouverte, sinon quitter l'application
 
 ---

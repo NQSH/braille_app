@@ -57,7 +57,7 @@ class BrailleApp:
             fg='#2C2C2C',
             radius=8,
             height=self._s(56),
-            text='F3',
+            text='B',
             font=self._font(22, 'bold')
         )
         self.mask_key_canvas.pack(side='left', padx=self._s(18))
@@ -140,7 +140,7 @@ class BrailleApp:
         self.root.bind('<KeyPress>', self.on_key_press)
         self.root.bind('<KeyRelease>', self.on_key_release)
         self.root.bind(f'<{self.speech_key}>', self.on_enter)
-        self.root.bind('<F3>', self.on_toggle_mask)
+        self.root.bind('<b>', self.on_toggle_mask)
         self.root.bind('<KeyPress-v>', self.on_toggle_help)
         self.root.bind('<KeyPress-V>', self.on_toggle_help)
         self.root.bind('<KeyPress-n>', self.on_toggle_reference)
@@ -185,7 +185,7 @@ class BrailleApp:
         shortcuts = (
             ('Aide des touches', 'V'),
             ('Référentiel braille', 'N'),
-            ('Mode masqué', 'F3'),
+            ('Mode masqué', 'B'),
         )
         row = tk.Frame(self.shortcuts_frame, bg='#2C2C2C')
         row.pack()
@@ -210,7 +210,7 @@ class BrailleApp:
 
         sections = [
             ('SAISIE', self._get_context_actions()),
-            ('FONCTIONS', (('Afficher ou fermer cette aide', 'V'), ('Afficher ou fermer le référentiel braille', 'N'), ('Mode masqué', 'F3'))),
+            ('FONCTIONS', (('Afficher ou fermer cette aide', 'V'), ('Afficher ou fermer le référentiel braille', 'N'), ('Mode masqué', 'B'))),
             ('AUTRE', (('Fermer l\'application', 'ECHAP'),)),
         ]
 
