@@ -404,6 +404,13 @@ class BrailleApp:
         self.current_text += ' '
         self.update_ui()
 
+    def clear_buffer(self) -> None:
+        if not self.current_buffer:
+            return
+
+        self.current_buffer.clear()
+        self.update_ui()
+
     def delete_short(self) -> None:
         self.current_text = self.current_text[:-1]
         self.update_ui()
@@ -440,7 +447,9 @@ class BrailleApp:
             if self.delete_job is not None:
                 self.root.after_cancel(self.delete_job)
                 self.delete_job = None
-                if self.translator.capitals_mode:
+                if self.current_buffer:
+                    self.clear_buffer()
+                elif self.translator.capitals_mode:
                     self.translator.capitals_mode = False
                     self.update_ui()
                 elif self.translator.number_mode:
@@ -510,7 +519,7 @@ class BrailleApp:
     def _get_context_actions(self) -> tuple[tuple[str, str], ...]:
         return (
             ('Valider', 'SPACE'),
-            ('Supprimer', 'M'),
+            ('Vider le buffer / Supprimer un caractère (Maintenir pour tout supprimer)', 'M'),
             ('Lire', 'G'),
         )
 
