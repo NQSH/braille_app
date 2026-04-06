@@ -18,6 +18,7 @@ Application Python modulaire permettant de saisir du braille via un clavier stan
   - appui court → supprimer 1 caractère
   - appui long (> 1 seconde) → supprimer tout le texte
 - ⌨️ Saisie unique en mode `perkins` avec `s d f j k l`
+- 🖥️ Affichage centré en plein écran, avec aide sur `V` et référentiel braille sur `N`
 
 ---
 
@@ -33,6 +34,13 @@ Application Python modulaire permettant de saisir du braille via un clavier stan
 - l → point 6
 - `Espace` → valider lettre ou espace
 - m → supprimer
+
+## Raccourcis d'affichage
+
+- `V` → afficher ou fermer l'aide des touches en plein écran
+- `N` → afficher ou fermer le référentiel braille en plein écran
+- `F3` → activer ou désactiver le mode masqué
+- `ECHAP` → fermer une vue plein écran ouverte, sinon quitter l'application
 
 ---
 

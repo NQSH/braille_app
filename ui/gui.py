@@ -4,7 +4,7 @@ from typing import Optional
 from braille.mapping import BrailleTranslator, LETTER_MAP, DIGIT_MAP, PUNCTUATION_MAP
 from braille.mode import PERKINS_MODE
 from speech.sapi import speak
-from ui.components import create_rounded_label, create_braille_canvas, create_braille_grid
+from ui.components import create_rounded_label, create_braille_grid
 
 
 
@@ -14,6 +14,8 @@ class BrailleApp:
         self.mode = PERKINS_MODE
         self.speech_key = 'g'
         self.masked_mode = False
+        self.help_overlay_visible = False
+        self.reference_overlay_visible = False
         self.current_buffer: set[int] = set()
         self.current_text = ''
         self.delete_job: Optional[str] = None
@@ -24,50 +26,14 @@ class BrailleApp:
         self.root.configure(bg='#2C2C2C')  # dark anthracite gray
         self.root.attributes('-fullscreen', True)  # Full screen
 
-        # Container frame that fills the screen with grid layout
+        # Single full-screen container for the main input area.
         self.container = tk.Frame(self.root, bg='#2C2C2C')
         self.container.pack(fill='both', expand=True)
         self.container.grid_rowconfigure(0, weight=1)
-        # Left, center, right proportional widths 30%/40%/30%
-        self.container.grid_columnconfigure(0, weight=3)
-        self.container.grid_columnconfigure(1, weight=4)
-        self.container.grid_columnconfigure(2, weight=3)
+        self.container.grid_columnconfigure(0, weight=1)
 
-        # Left panel
-        self.left_frame = tk.Frame(self.container, bg='#2C2C2C')
-        self.left_frame.grid(row=0, column=0, sticky='nsew')
-        self.left_frame.grid_rowconfigure(0, weight=1)
-        self.left_frame.grid_rowconfigure(1, weight=1)
-        self.left_frame.grid_rowconfigure(2, weight=1)
-        self.left_frame.grid_rowconfigure(3, weight=1)
-        self.left_frame.grid_columnconfigure(0, weight=1)
-
-        # Center panel
-        self.center_frame = tk.Frame(self.container, bg='#2C2C2C')
-        self.center_frame.grid(row=0, column=1, sticky='nsew')
-        self.center_frame.grid_rowconfigure(0, weight=1)
-        self.center_frame.grid_rowconfigure(1, weight=0)
-        self.center_frame.grid_rowconfigure(2, weight=1)
-        self.center_frame.grid_columnconfigure(0, weight=1)
-
-        # Right panel
-        self.right_frame = tk.Frame(self.container, bg='#2C2C2C')
-        self.right_frame.grid(row=0, column=2, sticky='nsew')
-        self.right_frame.grid_rowconfigure(0, weight=1)
-        self.right_frame.grid_rowconfigure(1, weight=1)
-        self.right_frame.grid_rowconfigure(2, weight=1)
-        self.right_frame.grid_rowconfigure(3, weight=1)
-        self.right_frame.grid_columnconfigure(0, weight=1)
-
-        # Spacer + content + spacer to keep the central block centered
-        self.center_top_spacer = tk.Frame(self.center_frame, bg='#2C2C2C')
-        self.center_top_spacer.grid(row=0, column=0, sticky='nsew')
-
-        self.main_frame = tk.Frame(self.center_frame, bg='#2C2C2C')
-        self.main_frame.grid(row=1, column=0)
-
-        self.center_bottom_spacer = tk.Frame(self.center_frame, bg='#2C2C2C')
-        self.center_bottom_spacer.grid(row=2, column=0, sticky='nsew')
+        self.main_frame = tk.Frame(self.container, bg='#2C2C2C')
+        self.main_frame.grid(row=0, column=0)
 
         self.mask_overlay = tk.Frame(self.root, bg='black')
         self.mask_message_frame = tk.Frame(self.mask_overlay, bg='black')
@@ -97,13 +63,20 @@ class BrailleApp:
             bg='black'
         ).pack(side='left', padx=(20, 0))
 
-        # Create side panels
-        self.create_left_panels()
-        self.create_right_panels()
+        self.help_overlay = tk.Frame(self.root, bg='#101010')
+        self.help_content = tk.Frame(self.help_overlay, bg='#101010')
+        self.help_content.place(relx=0.5, rely=0.5, anchor='center')
+
+        self.reference_overlay = tk.Frame(self.root, bg='#161616')
+        self.reference_content = tk.Frame(self.reference_overlay, bg='#161616')
+        self.reference_content.place(relx=0.5, rely=0.5, anchor='center')
+
+        self.create_help_overlay()
+        self.create_reference_overlay()
 
         # Mode de saisie label
         tk.Label(self.main_frame, text='Mode de saisie', font=('Arial', 14), fg='white', bg='#2C2C2C').pack(pady=(0, 5))
-        mode_color = '#E0B0FF' if self.mode.name == 'perkins' else '#FFFF99'
+        mode_color = '#E0B0FF'
         self.mode_label = tk.Label(self.main_frame, text=self.mode.name.upper(), font=('Arial', 20, 'bold'), fg=mode_color, bg='#2C2C2C')
         self.mode_label.pack(pady=(0, 0))
 
@@ -136,10 +109,18 @@ class BrailleApp:
         self.indications_frame.pack(pady=10)
         self.create_indications()
 
+        self.shortcuts_frame = tk.Frame(self.main_frame, bg='#2C2C2C')
+        self.shortcuts_frame.pack(pady=(20, 0))
+        self.create_shortcuts_hint()
+
         self.root.bind('<KeyPress>', self.on_key_press)
         self.root.bind('<KeyRelease>', self.on_key_release)
         self.root.bind(f'<{self.speech_key}>', self.on_enter)
         self.root.bind('<F3>', self.on_toggle_mask)
+        self.root.bind('<KeyPress-v>', self.on_toggle_help)
+        self.root.bind('<KeyPress-V>', self.on_toggle_help)
+        self.root.bind('<KeyPress-n>', self.on_toggle_reference)
+        self.root.bind('<KeyPress-N>', self.on_toggle_reference)
         self.root.bind('<Escape>', self.on_escape)
 
         self.update_ui()
@@ -163,6 +144,128 @@ class BrailleApp:
 
     def run(self) -> None:
         self.root.mainloop()
+
+    def create_shortcuts_hint(self) -> None:
+        for widget in self.shortcuts_frame.winfo_children():
+            widget.destroy()
+
+        hint_title = tk.Label(
+            self.shortcuts_frame,
+            text='Raccourcis plein écran',
+            font=('Arial', 14, 'bold'),
+            fg='white',
+            bg='#2C2C2C'
+        )
+        hint_title.pack(pady=(0, 10))
+
+        shortcuts = (
+            ('Aide des touches', 'V'),
+            ('Référentiel braille', 'N'),
+            ('Mode masqué', 'F3'),
+        )
+        row = tk.Frame(self.shortcuts_frame, bg='#2C2C2C')
+        row.pack()
+        for label_text, key in shortcuts:
+            card = tk.Frame(row, bg='#2C2C2C')
+            card.pack(side='left', padx=14)
+            tk.Label(card, text=label_text, font=('Arial', 12, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 6))
+            key_canvas, _ = create_rounded_label(card, bg='white', fg='#2C2C2C', radius=6, height=42, text=key, font=('Arial', 16, 'bold'))
+            key_canvas.pack()
+
+    def create_help_overlay(self) -> None:
+        for widget in self.help_content.winfo_children():
+            widget.destroy()
+
+        tk.Label(
+            self.help_content,
+            text='Aide des touches',
+            font=('Arial', 30, 'bold'),
+            fg='white',
+            bg='#101010'
+        ).pack(pady=(0, 30))
+
+        sections = [
+            ('SAISIE', self._get_context_actions()),
+            ('FONCTIONS', (('Afficher ou fermer cette aide', 'V'), ('Afficher ou fermer le référentiel braille', 'N'), ('Mode masqué', 'F3'))),
+            ('AUTRE', (('Fermer l\'application', 'ECHAP'),)),
+        ]
+
+        for title, actions in sections:
+            section_frame = tk.Frame(self.help_content, bg='#101010')
+            section_frame.pack(fill='x', pady=10)
+            tk.Label(section_frame, text=title, font=('Arial', 18, 'bold'), fg='white', bg='#101010').pack(anchor='w', pady=(0, 10))
+            for action, key in actions:
+                line_frame = tk.Frame(section_frame, bg='#101010')
+                line_frame.pack(fill='x', pady=6)
+                tk.Label(line_frame, text=action, font=('Arial', 15, 'bold'), fg='white', bg='#101010').pack(side='left')
+                lbl_canvas, _ = create_rounded_label(
+                    line_frame,
+                    bg='white',
+                    fg='#2C2C2C',
+                    radius=6,
+                    height=38,
+                    text=key,
+                    font=('Arial', 15, 'bold')
+                )
+                lbl_canvas.pack(side='right')
+
+        tk.Label(
+            self.help_content,
+            text='Appuyer sur V pour revenir a la saisie',
+            font=('Arial', 14),
+            fg='#CFCFCF',
+            bg='#101010'
+        ).pack(pady=(30, 0))
+
+    def create_reference_overlay(self) -> None:
+        for widget in self.reference_content.winfo_children():
+            widget.destroy()
+
+        tk.Label(
+            self.reference_content,
+            text='Référentiel braille',
+            font=('Arial', 30, 'bold'),
+            fg='white',
+            bg='#161616'
+        ).pack(pady=(0, 24))
+
+        top_row = tk.Frame(self.reference_content, bg='#161616')
+        top_row.pack(pady=12)
+        bottom_row = tk.Frame(self.reference_content, bg='#161616')
+        bottom_row.pack(pady=12)
+
+        sections = (
+            (top_row, 'Alphabet', LETTER_MAP),
+            (top_row, 'Chiffres', DIGIT_MAP),
+            (bottom_row, 'Ponctuation', PUNCTUATION_MAP),
+        )
+        for parent, title, mapping in sections:
+            panel = tk.Frame(parent, bg='#161616')
+            panel.pack(side='left', padx=24)
+            tk.Label(panel, text=title, font=('Arial', 18, 'bold'), fg='white', bg='#161616').pack(pady=(0, 12))
+            create_braille_grid(panel, mapping, max_cols=6)
+
+        special_panel = tk.Frame(bottom_row, bg='#161616')
+        special_panel.pack(side='left', padx=24)
+        tk.Label(special_panel, text='Signes', font=('Arial', 18, 'bold'), fg='white', bg='#161616').pack(pady=(0, 12))
+
+        capitals_frame = tk.Frame(special_panel, bg='#161616')
+        capitals_frame.pack(pady=(0, 14))
+        tk.Label(capitals_frame, text='Majuscule', font=('Arial', 14, 'bold'), fg='white', bg='#161616').pack(pady=(0, 8))
+        create_braille_grid(capitals_frame, {frozenset({4, 6}): ''}, max_cols=1)
+
+        number_frame = tk.Frame(special_panel, bg='#161616')
+        number_frame.pack()
+        tk.Label(number_frame, text='Numérique', font=('Arial', 14, 'bold'), fg='white', bg='#161616').pack(pady=(0, 8))
+        create_braille_grid(number_frame, {frozenset({6}): ''}, max_cols=1)
+
+        tk.Label(
+            self.reference_content,
+            text='Appuyer sur N pour revenir a la saisie',
+            font=('Arial', 14),
+            fg='#D7D7D7',
+            bg='#161616'
+        ).pack(pady=(28, 0))
 
     def update_ui(self) -> None:
         text = self.current_text
@@ -267,6 +370,32 @@ class BrailleApp:
     def on_enter(self, event: tk.Event) -> None:
         speak(self.current_text)
 
+    def on_toggle_help(self, event: tk.Event) -> None:
+        if self.reference_overlay_visible:
+            self.reference_overlay.place_forget()
+            self.reference_overlay_visible = False
+
+        self.help_overlay_visible = not self.help_overlay_visible
+        if self.help_overlay_visible:
+            self.help_overlay.place(relx=0, rely=0, relwidth=1, relheight=1)
+            self.help_overlay.lift()
+            return
+
+        self.help_overlay.place_forget()
+
+    def on_toggle_reference(self, event: tk.Event) -> None:
+        if self.help_overlay_visible:
+            self.help_overlay.place_forget()
+            self.help_overlay_visible = False
+
+        self.reference_overlay_visible = not self.reference_overlay_visible
+        if self.reference_overlay_visible:
+            self.reference_overlay.place(relx=0, rely=0, relwidth=1, relheight=1)
+            self.reference_overlay.lift()
+            return
+
+        self.reference_overlay.place_forget()
+
     def on_toggle_mask(self, event: tk.Event) -> None:
         self.masked_mode = not self.masked_mode
         if self.masked_mode:
@@ -279,50 +408,17 @@ class BrailleApp:
         self.container.focus_set()
 
     def on_escape(self, event: tk.Event) -> None:
+        if self.help_overlay_visible:
+            self.help_overlay.place_forget()
+            self.help_overlay_visible = False
+            return
+
+        if self.reference_overlay_visible:
+            self.reference_overlay.place_forget()
+            self.reference_overlay_visible = False
+            return
+
         self.root.destroy()
-
-    def create_left_panels(self) -> None:
-        for widget in self.left_frame.winfo_children():
-            widget.destroy()
-
-        sections = [
-            ('BRAPP', tuple(), ('Arial', 28, 'bold')),
-            ('FONCTIONS', (('Mode masqué', 'F3'),)),
-            ('CONTEXTE', self._get_context_actions()),
-            ('AUTRE', (('Fermer', 'ECHAP'),)),
-        ]
-
-        for row, section in enumerate(sections):
-            title = section[0]
-            actions = section[1]
-            title_font = section[2] if len(section) > 2 else ('Arial', 16, 'bold')
-            horizontal_padding = 10 if row == 0 else 20
-
-            panel = tk.Frame(self.left_frame, bg='#2C2C2C')
-            panel.grid(row=row, column=0, sticky='nsew', padx=horizontal_padding, pady=10)
-
-            if row == 0:
-                tk.Label(panel, text=title, font=title_font, fg='white', bg='#2C2C2C').pack(anchor='nw', padx=12, pady=12)
-                continue
-
-            tk.Label(panel, text=title, font=title_font, fg='white', bg='#2C2C2C').pack(anchor='nw', padx=12, pady=(12, 10))
-            actions_frame = tk.Frame(panel, bg='#2C2C2C')
-            actions_frame.pack(fill='x', anchor='nw', padx=12, pady=(2, 14))
-
-            for action, key in actions:
-                line_frame = tk.Frame(actions_frame, bg='#2C2C2C')
-                line_frame.pack(fill='x', pady=7)
-                tk.Label(line_frame, text=action, font=('Arial', 12, 'bold'), fg='white', bg='#2C2C2C').pack(side='left', anchor='w', padx=(30, 0))
-                lbl_canvas, _ = create_rounded_label(
-                    line_frame,
-                    bg='white',
-                    fg='#2C2C2C',
-                    radius=4,
-                    height=36,
-                    text=key,
-                    font=('Arial', 14, 'bold')
-                )
-                lbl_canvas.pack(side='right',)
 
     def _get_context_actions(self) -> tuple[tuple[str, str], ...]:
         return (
@@ -330,33 +426,4 @@ class BrailleApp:
             ('Supprimer', 'M'),
             ('Lire', 'G'),
         )
-
-    def create_right_panels(self) -> None:
-        # Alphabet top left
-        alphabet_frame = tk.Frame(self.right_frame, bg='#2C2C2C')
-        alphabet_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
-        tk.Label(alphabet_frame, text='Alphabet', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
-        create_braille_grid(alphabet_frame, LETTER_MAP)
-
-        # Signe majuscule middle left
-        special_frame = tk.Frame(self.right_frame, bg='#2C2C2C')
-        special_frame.grid(row=1, column=0, sticky='nsew', padx=10, pady=10)
-
-        tk.Label(special_frame, text='Signe majuscule', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
-        create_braille_grid(special_frame, {frozenset({4, 6}): ''})
-        
-        tk.Label(special_frame, text='Signe numérique', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
-        create_braille_grid(special_frame, {frozenset({6}): ''})
-
-        # Numbers bottom left
-        numbers_frame = tk.Frame(self.right_frame, bg='#2C2C2C')
-        numbers_frame.grid(row=2, column=0, sticky='nsew', padx=10, pady=10)
-        tk.Label(numbers_frame, text='Chiffres', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
-        create_braille_grid(numbers_frame, DIGIT_MAP)
-
-        # Punctuation bottom right
-        punctuation_frame = tk.Frame(self.right_frame, bg='#2C2C2C')
-        punctuation_frame.grid(row=3, column=0, sticky='nsew', padx=10, pady=10)
-        tk.Label(punctuation_frame, text='Ponctuation', font=('Arial', 14, 'bold'), fg='white', bg='#2C2C2C').pack(pady=(0, 10))
-        create_braille_grid(punctuation_frame, PUNCTUATION_MAP)
 
