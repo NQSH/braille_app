@@ -78,62 +78,8 @@ class BrailleApp:
         self.create_help_overlay()
         self.create_reference_overlay()
 
-        # Mode de saisie label
-        tk.Label(self.main_frame, text='Mode de saisie', font=self.mode_caption_font, fg='white', bg='#2C2C2C').pack(pady=(self.section_top_gap, self.section_small_gap))
-        mode_color = '#E0B0FF'
-        self.mode_label = tk.Label(self.main_frame, text=self.mode.name.upper(), font=self.mode_title_font, fg=mode_color, bg='#2C2C2C')
-        self.mode_label.pack(pady=(0, self.section_tight_gap))
-
-        # Description
-        self.desc_label = tk.Label(self.main_frame, text=self.mode.description, font=self.mode_description_font, fg='white', bg='#2C2C2C')
-        self.desc_label.pack(pady=(0, self.section_gap))
-
-        # Text input frame
-        self.input_canvas, self.input_text_id = create_rounded_label(
-            self.main_frame,
-            bg='white',
-            fg='black',
-            radius=8,
-            width=self.main_panel_width,
-            height=self.main_input_height,
-            text='',
-            font=self.input_font
-        )
-        self.input_canvas.pack(padx=self.canvas_inline_gap, pady=self.section_gap)
-
-        # Buffer and mode status
-        buffer_frame = tk.Frame(self.main_frame, bg='#2C2C2C', width=self.main_panel_width, height=self.status_bar_height)
-        buffer_frame.pack(pady=self.section_small_gap)
-        buffer_frame.pack_propagate(False)
-        # Left: Mode status
-        mode_title = tk.Label(buffer_frame, text='Mode', font=self.status_font, fg='white', bg='#2C2C2C')
-        mode_title.pack(side='left')
-        self.mode_value = tk.Label(buffer_frame, text='', font=self.status_font, bg='#2C2C2C', fg='white')
-        self.mode_value.pack(side='left', padx=(0, self.status_inline_gap))
-        
-        # Right: Buffer fully right
-        self.buffer_canvas, self.buffer_text_id = create_rounded_label(
-            buffer_frame,
-            bg='white',
-            fg='#2C2C2C',
-            radius=4,
-            width=self.buffer_width,
-            height=self.buffer_height,
-            text='',
-            font=self.status_font
-        )
-        self.buffer_canvas.pack(side='right', padx=(self.canvas_inline_gap, 0))
-        buffer_title = tk.Label(buffer_frame, text='Buffer', font=self.status_font, fg='white', bg='#2C2C2C')
-        buffer_title.pack(side='right')
-
-        # Mode indications
-        self.indications_frame = tk.Frame(self.main_frame, bg='#2C2C2C')
-        self.indications_frame.pack(pady=self.section_gap)
-        self.create_indications()
-
-        self.shortcuts_frame = tk.Frame(self.main_frame, bg='#2C2C2C')
-        self.shortcuts_frame.pack(pady=(self.section_gap, 0))
-        self.create_shortcuts_hint()
+        self.create_main_layout()
+        self._fit_main_layout_if_needed()
 
         self.root.bind('<KeyPress>', self.on_key_press)
         self.root.bind('<KeyRelease>', self.on_key_release)
@@ -163,6 +109,61 @@ class BrailleApp:
                 lbl_canvas.pack()
                 num_lbl = tk.Label(pair_frame, text=num, font=self.indication_number_font, fg='white', bg='#2C2C2C')
                 num_lbl.pack()
+
+    def create_main_layout(self) -> None:
+        for widget in self.main_frame.winfo_children():
+            widget.destroy()
+
+        tk.Label(self.main_frame, text='Mode de saisie', font=self.mode_caption_font, fg='white', bg='#2C2C2C').pack(pady=(self.section_top_gap, self.section_small_gap))
+        mode_color = '#E0B0FF'
+        self.mode_label = tk.Label(self.main_frame, text=self.mode.name.upper(), font=self.mode_title_font, fg=mode_color, bg='#2C2C2C')
+        self.mode_label.pack(pady=(0, self.section_tight_gap))
+
+        self.desc_label = tk.Label(self.main_frame, text=self.mode.description, font=self.mode_description_font, fg='white', bg='#2C2C2C')
+        self.desc_label.pack(pady=(0, self.section_gap))
+
+        self.input_canvas, self.input_text_id = create_rounded_label(
+            self.main_frame,
+            bg='white',
+            fg='black',
+            radius=8,
+            width=self.main_panel_width,
+            height=self.main_input_height,
+            text='',
+            font=self.input_font
+        )
+        self.input_canvas.pack(padx=self.canvas_inline_gap, pady=self.section_gap)
+
+        buffer_frame = tk.Frame(self.main_frame, bg='#2C2C2C', width=self.main_panel_width, height=self.status_bar_height)
+        buffer_frame.pack(pady=self.section_small_gap)
+        buffer_frame.pack_propagate(False)
+
+        mode_title = tk.Label(buffer_frame, text='Mode', font=self.status_font, fg='white', bg='#2C2C2C')
+        mode_title.pack(side='left')
+        self.mode_value = tk.Label(buffer_frame, text='', font=self.status_font, bg='#2C2C2C', fg='white')
+        self.mode_value.pack(side='left', padx=(0, self.status_inline_gap))
+
+        self.buffer_canvas, self.buffer_text_id = create_rounded_label(
+            buffer_frame,
+            bg='white',
+            fg='#2C2C2C',
+            radius=4,
+            width=self.buffer_width,
+            height=self.buffer_height,
+            text='',
+            font=self.status_font
+        )
+        self.buffer_canvas.pack(side='right', padx=(self.canvas_inline_gap, 0))
+        buffer_title = tk.Label(buffer_frame, text='Buffer', font=self.status_font, fg='white', bg='#2C2C2C')
+        buffer_title.pack(side='right')
+
+        self.indications_frame = tk.Frame(self.main_frame, bg='#2C2C2C')
+        self.indications_frame.pack(pady=self.section_gap)
+        self.create_indications()
+
+        self.shortcuts_frame = tk.Frame(self.main_frame, bg='#2C2C2C')
+        self.shortcuts_frame.pack(pady=(self.section_gap, 0))
+        self.create_shortcuts_hint()
 
     def run(self) -> None:
         self.root.mainloop()
@@ -568,6 +569,9 @@ class BrailleApp:
         self.reference_sign_label_font = self._screen_font(0.02, 14, 22, 'bold')
         self.reference_footer_font = self._screen_font(0.019, 14, 22)
 
+        self._fit_main_layout_to_screen()
+        self._fit_help_layout_to_screen()
+
     def _s(self, value: int) -> int:
         return max(1, int(value * self.ui_scale))
 
@@ -579,6 +583,109 @@ class BrailleApp:
         if weight == 'normal':
             return ('Arial', size)
         return ('Arial', size, weight)
+
+    def _scale_metric(self, value: int, factor: float, min_value: int) -> int:
+        return max(min_value, int(value * factor))
+
+    def _scale_font_tuple(self, font: tuple[str, int] | tuple[str, int, str], factor: float, min_size: int) -> tuple[str, int] | tuple[str, int, str]:
+        family = font[0]
+        size = max(min_size, int(font[1] * factor))
+        if len(font) == 2:
+            return (family, size)
+        return (family, size, font[2])
+
+    def _font_height(self, font: tuple[str, int] | tuple[str, int, str]) -> int:
+        return int(font[1] * 1.5)
+
+    def _estimate_main_content_height(self) -> int:
+        total = 0
+        total += self._font_height(self.mode_caption_font) + self.section_top_gap + self.section_small_gap
+        total += self._font_height(self.mode_title_font) + self.section_tight_gap
+        total += self._font_height(self.mode_description_font) + self.section_gap
+        total += self.main_input_height + (self.section_gap * 2)
+        total += self.status_bar_height + (self.section_small_gap * 2)
+        total += self.indication_key_height + self._font_height(self.indication_number_font) + (self.section_gap * 2)
+        total += self._font_height(self.shortcut_title_font) + self.section_small_gap
+        total += self._font_height(self.shortcut_label_font) + self.shortcut_key_height + self.section_tight_gap
+        total += self.section_gap
+        return total
+
+    def _estimate_help_content_height(self) -> int:
+        sections = [len(self._get_context_actions()), 3, 1]
+        total = 0
+        total += self._font_height(self.help_title_font) + self.section_top_gap + self.section_gap
+        for line_count in sections:
+            total += (self.section_small_gap * 2)
+            total += self._font_height(self.help_section_title_font)
+            total += self.section_small_gap
+            total += line_count * (max(self._font_height(self.help_line_font), self.help_key_height) + (self.line_gap * 2))
+        total += self._font_height(self.help_footer_font) + self.section_gap + self.section_small_gap
+        return total
+
+    def _fit_main_layout_to_screen(self) -> None:
+        available_height = self.screen_height - (self.main_frame_pady * 2) - 6
+        estimated_height = self._estimate_main_content_height()
+        if estimated_height <= available_height:
+            return
+
+        factor = max(0.72, min(0.98, available_height / estimated_height))
+        self._scale_main_metrics(factor)
+
+    def _fit_main_layout_if_needed(self) -> None:
+        for _ in range(3):
+            self.root.update_idletasks()
+            available_height = self.screen_height - (self.main_frame_pady * 2) - 6
+            required_height = self.main_frame.winfo_reqheight()
+            if required_height <= available_height:
+                return
+
+            factor = max(0.68, min(0.95, available_height / required_height))
+            self._scale_main_metrics(factor)
+            self.create_main_layout()
+
+    def _scale_main_metrics(self, factor: float) -> None:
+        self.section_top_gap = self._scale_metric(self.section_top_gap, factor, 4)
+        self.section_gap = self._scale_metric(self.section_gap, factor, 8)
+        self.section_small_gap = self._scale_metric(self.section_small_gap, factor, 4)
+        self.section_tight_gap = self._scale_metric(self.section_tight_gap, factor, 2)
+        self.main_input_height = self._scale_metric(self.main_input_height, factor, 96)
+        self.status_bar_height = self._scale_metric(self.status_bar_height, factor, 34)
+        self.buffer_height = self._scale_metric(self.buffer_height, factor, 30)
+        self.indication_key_height = self._scale_metric(self.indication_key_height, factor, 42)
+        self.shortcut_key_height = self._scale_metric(self.shortcut_key_height, factor, 36)
+        self.indication_card_gap = self._scale_metric(self.indication_card_gap, factor, 4)
+        self.indication_spacer_gap = self._scale_metric(self.indication_spacer_gap, factor, 8)
+        self.shortcut_card_gap = self._scale_metric(self.shortcut_card_gap, factor, 8)
+
+        self.mode_caption_font = self._scale_font_tuple(self.mode_caption_font, factor, 11)
+        self.mode_title_font = self._scale_font_tuple(self.mode_title_font, factor, 16)
+        self.mode_description_font = self._scale_font_tuple(self.mode_description_font, factor, 11)
+        self.input_font = self._scale_font_tuple(self.input_font, factor, 14)
+        self.status_font = self._scale_font_tuple(self.status_font, factor, 11)
+        self.indication_key_font = self._scale_font_tuple(self.indication_key_font, factor, 14)
+        self.indication_number_font = self._scale_font_tuple(self.indication_number_font, factor, 11)
+        self.shortcut_title_font = self._scale_font_tuple(self.shortcut_title_font, factor, 11)
+        self.shortcut_label_font = self._scale_font_tuple(self.shortcut_label_font, factor, 11)
+        self.shortcut_key_font = self._scale_font_tuple(self.shortcut_key_font, factor, 12)
+
+    def _fit_help_layout_to_screen(self) -> None:
+        available_height = int(self.screen_height * self.help_relheight) - 10
+        estimated_height = self._estimate_help_content_height()
+        if estimated_height <= available_height:
+            return
+
+        self.help_relheight = 1.0
+        available_height = self.screen_height - 10
+        factor = max(0.72, min(0.98, available_height / estimated_height))
+
+        self.help_section_padx = self._scale_metric(self.help_section_padx, factor, 16)
+        self.line_gap = self._scale_metric(self.line_gap, factor, 2)
+        self.help_key_height = self._scale_metric(self.help_key_height, factor, 34)
+        self.help_title_font = self._scale_font_tuple(self.help_title_font, factor, 18)
+        self.help_section_title_font = self._scale_font_tuple(self.help_section_title_font, factor, 14)
+        self.help_line_font = self._scale_font_tuple(self.help_line_font, factor, 12)
+        self.help_key_font = self._scale_font_tuple(self.help_key_font, factor, 12)
+        self.help_footer_font = self._scale_font_tuple(self.help_footer_font, factor, 12)
 
     def _font(self, size: int, weight: str = 'normal') -> tuple[str, int] | tuple[str, int, str]:
         scaled_size = max(8, self._s(size))
