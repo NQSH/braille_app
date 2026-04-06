@@ -18,8 +18,31 @@ def create_rounded_label(parent, bg, fg, radius, width=100, height=50, text='', 
     return canvas, text_id
 
 
-def create_braille_canvas(parent, dots: frozenset[int], size=20):
-    canvas = tk.Canvas(parent, width=2 * size, height=3 * size, bg='white', highlightthickness=0)
+def create_braille_canvas(parent, dots: frozenset[int], size=20, radius=8):
+    width = 2 * size
+    height = 3 * size
+    canvas = tk.Canvas(parent, width=width, height=height, bg=parent['bg'], highlightthickness=0)
+
+    rounded_radius = max(2, min(radius, size))
+
+    def round_rectangle(x1, y1, x2, y2, corner_radius=rounded_radius):
+        points = [
+            x1 + corner_radius, y1,
+            x2 - corner_radius, y1,
+            x2, y1,
+            x2, y1 + corner_radius,
+            x2, y2 - corner_radius,
+            x2, y2,
+            x2 - corner_radius, y2,
+            x1 + corner_radius, y2,
+            x1, y2,
+            x1, y2 - corner_radius,
+            x1, y1 + corner_radius,
+            x1, y1,
+        ]
+        return canvas.create_polygon(points, fill='white', outline='', smooth=True)
+
+    round_rectangle(1, 1, width - 1, height - 1)
     positions = {
         1: (0, 0),
         2: (0, 1),
