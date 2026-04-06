@@ -1,9 +1,9 @@
 import tkinter as tk
 
 
-def create_rounded_label(parent, bg, fg, radius, width=100, height=50, text='', font=('Arial', 12), pixels_per_char=12):
+def create_rounded_label(parent, bg, fg, radius, width=100, height=50, text='', font=('Arial', 12), pixels_per_char=30):
     if text:
-        width = len(text) * pixels_per_char + 30
+        width = len(text) * pixels_per_char + 50
         if height == 50:
             height = font[1] + 10 if len(font) > 1 else 30
 
@@ -37,7 +37,7 @@ def create_braille_canvas(parent, dots: frozenset[int], size=20):
     return canvas
 
 
-def create_braille_grid(parent, mapping: dict, breaks: list = None, max_cols=10):
+def create_braille_grid(parent, mapping: dict, breaks: list = None, max_cols=10, dot_size=15, label_font=('Arial', 10, 'bold'), item_padx=5, row_pady=2):
     if breaks is None:
         breaks = []
     current_row_frame = None
@@ -45,14 +45,14 @@ def create_braille_grid(parent, mapping: dict, breaks: list = None, max_cols=10)
     for dots, char in mapping.items():
         if char in breaks or col == 0:
             current_row_frame = tk.Frame(parent, bg=parent['bg'])
-            current_row_frame.pack(pady=2)
+            current_row_frame.pack(pady=row_pady)
             col = 0
 
         pair_frame = tk.Frame(current_row_frame, bg=parent['bg'])
-        pair_frame.pack(side='left', padx=5)
-        braille_canvas = create_braille_canvas(pair_frame, dots, size=15)
+        pair_frame.pack(side='left', padx=item_padx)
+        braille_canvas = create_braille_canvas(pair_frame, dots, size=dot_size)
         braille_canvas.pack()
-        tk.Label(pair_frame, text=char.upper() if isinstance(char, str) and char.isalpha() else char, font=('Arial', 10, 'bold'), fg='white', bg=parent['bg']).pack()
+        tk.Label(pair_frame, text=char.upper() if isinstance(char, str) and char.isalpha() else char, font=label_font, fg='white', bg=parent['bg']).pack()
         col += 1
         if col >= max_cols:
             col = 0
