@@ -250,6 +250,46 @@ class BrailleApp:
         self.reference_content.grid_rowconfigure(2, weight=0)
         self.reference_content.grid_columnconfigure(0, weight=1)
 
+        # ── Responsive dot size ───────────────────────────────────────────────
+        # Estimate real pixel height of a Label for a given font point size.
+        # At 96 DPI: 1 pt ≈ 1.33 px; add ~4 px widget padding → factor 1.5 is safe.
+        ref_title_h  = int(self._font(34, 'bold')[1] * 1.5) + self._s(28)   # overlay title row
+        ref_footer_h = int(self._font(18)[1]         * 1.5) + self._s(24)   # footer row
+        grid_outer_v = self._s(12) * 2                                       # grid_frame pady
+        grid_outer_h = self._s(20) * 2                                       # grid_frame padx
+        panel_pad    = self._s(10) * 2                                       # panel padx / pady
+
+        # Available space inside the grid_frame
+        grid_area_h  = self.screen_height - ref_title_h - ref_footer_h - grid_outer_v
+        grid_area_w  = self.screen_width  - grid_outer_h
+
+        # Available space inside each panel (half-width each)
+        panel_w      = grid_area_w // 2 - panel_pad
+        left_h       = grid_area_h      - panel_pad   # alphabet: spans all 3 rows
+        right_h_one  = grid_area_h // 3 - panel_pad   # one right-column row (chiffres = tightest)
+
+        # Heights consumed by section title labels
+        sec_title_h  = int(self._font(24, 'bold')[1] * 1.5) + self._s(10)
+        # Height consumed by the character label under each braille cell
+        cell_lbl_h   = int(self._font(13, 'bold')[1] * 1.4) + 2
+        row_pad      = self._s(4)
+
+        # Width constraint: 10 cols, each cell = 2*ds wide + 2*padx padding on sides.
+        # With padx ≈ ds/5 → cell slot ≈ ds * 2.4  →  10 * ds * 2.4 = panel_w
+        ds_from_w    = int(panel_w / 24)
+
+        # Height constraint — alphabet (3 rows):
+        ds_from_ha   = (left_h    - sec_title_h - 3 * cell_lbl_h - 2 * row_pad) // 9
+
+        # Height constraint — chiffres (1 row, tightest right panel):
+        ds_from_hc   = (right_h_one - sec_title_h - cell_lbl_h) // 3
+
+        ref_dot      = max(self._s(10), min(ds_from_w, ds_from_ha, ds_from_hc))
+        ref_padx     = max(2, ref_dot // 5)
+        ref_row_pady = max(1, ref_dot // 8)
+        ref_lbl_font = ('Arial', max(8, ref_dot // 2), 'bold')
+        # ─────────────────────────────────────────────────────────────────────
+
         tk.Label(
             self.reference_content,
             text='Référentiel braille',
@@ -271,21 +311,21 @@ class BrailleApp:
         alphabet_content = tk.Frame(alphabet_panel, bg='#161616')
         alphabet_content.place(relx=0.5, rely=0.5, anchor='center')
         tk.Label(alphabet_content, text='Alphabet', font=self._font(24, 'bold'), fg='white', bg='#161616').pack(pady=(0, self._s(10)))
-        create_braille_grid(alphabet_content, LETTER_MAP, max_cols=10, dot_size=self._s(18), label_font=self._font(13, 'bold'), item_padx=self._s(6), row_pady=self._s(4))
+        create_braille_grid(alphabet_content, LETTER_MAP, max_cols=10, dot_size=ref_dot, label_font=ref_lbl_font, item_padx=ref_padx, row_pady=ref_row_pady)
 
         punctuation_panel = tk.Frame(grid_frame, bg='#161616')
         punctuation_panel.grid(row=0, column=1, padx=self._s(10), pady=self._s(10), sticky='nsew')
         punctuation_content = tk.Frame(punctuation_panel, bg='#161616')
         punctuation_content.place(relx=0.5, rely=0.5, anchor='center')
         tk.Label(punctuation_content, text='Ponctuation', font=self._font(24, 'bold'), fg='white', bg='#161616').pack(pady=(0, self._s(10)))
-        create_braille_grid(punctuation_content, PUNCTUATION_MAP, max_cols=10, dot_size=self._s(18), label_font=self._font(13, 'bold'), item_padx=self._s(6), row_pady=self._s(4))
+        create_braille_grid(punctuation_content, PUNCTUATION_MAP, max_cols=10, dot_size=ref_dot, label_font=ref_lbl_font, item_padx=ref_padx, row_pady=ref_row_pady)
 
         numbers_panel = tk.Frame(grid_frame, bg='#161616')
         numbers_panel.grid(row=1, column=1, padx=self._s(10), pady=self._s(10), sticky='nsew')
         numbers_content = tk.Frame(numbers_panel, bg='#161616')
         numbers_content.place(relx=0.5, rely=0.5, anchor='center')
         tk.Label(numbers_content, text='Chiffres', font=self._font(24, 'bold'), fg='white', bg='#161616').pack(pady=(0, self._s(10)))
-        create_braille_grid(numbers_content, DIGIT_MAP, max_cols=10, dot_size=self._s(18), label_font=self._font(13, 'bold'), item_padx=self._s(6), row_pady=self._s(4))
+        create_braille_grid(numbers_content, DIGIT_MAP, max_cols=10, dot_size=ref_dot, label_font=ref_lbl_font, item_padx=ref_padx, row_pady=ref_row_pady)
 
         special_panel = tk.Frame(grid_frame, bg='#161616')
         special_panel.grid(row=2, column=1, padx=self._s(10), pady=self._s(10), sticky='nsew')
@@ -300,12 +340,12 @@ class BrailleApp:
         capitals_frame = tk.Frame(signs_row, bg='#161616')
         capitals_frame.pack(side='left', padx=self._s(16))
         tk.Label(capitals_frame, text='Majuscule', font=self._font(16, 'bold'), fg='white', bg='#161616').pack(pady=(0, self._s(8)))
-        create_braille_grid(capitals_frame, {frozenset({4, 6}): ''}, max_cols=10, dot_size=self._s(18), label_font=self._font(13, 'bold'), item_padx=self._s(6), row_pady=self._s(4))
+        create_braille_grid(capitals_frame, {frozenset({4, 6}): ''}, max_cols=10, dot_size=ref_dot, label_font=ref_lbl_font, item_padx=ref_padx, row_pady=ref_row_pady)
 
         number_frame = tk.Frame(signs_row, bg='#161616')
         number_frame.pack(side='left', padx=self._s(16))
         tk.Label(number_frame, text='Numérique', font=self._font(16, 'bold'), fg='white', bg='#161616').pack(pady=(0, self._s(8)))
-        create_braille_grid(number_frame, {frozenset({6}): ''}, max_cols=10, dot_size=self._s(18), label_font=self._font(13, 'bold'), item_padx=self._s(6), row_pady=self._s(4))
+        create_braille_grid(number_frame, {frozenset({6}): ''}, max_cols=10, dot_size=ref_dot, label_font=ref_lbl_font, item_padx=ref_padx, row_pady=ref_row_pady)
 
         tk.Label(
             self.reference_content,
