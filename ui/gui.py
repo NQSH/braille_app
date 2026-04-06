@@ -184,8 +184,8 @@ class BrailleApp:
 
         shortcuts = (
             ('Aide des touches', 'V'),
-            ('Référentiel braille', 'N'),
             ('Mode masqué', 'B'),
+            ('Référentiel braille', 'N'),
         )
         row = tk.Frame(self.shortcuts_frame, bg='#2C2C2C')
         row.pack()
